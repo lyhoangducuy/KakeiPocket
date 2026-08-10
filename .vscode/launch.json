@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-KakeiPocketApplication<KakeiPocket>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.kakeipocket.KakeiPocket.KakeiPocketApplication",
+            "projectName": "KakeiPocket",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
