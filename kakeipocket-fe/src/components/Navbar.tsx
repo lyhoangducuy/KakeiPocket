@@ -46,6 +46,10 @@ export default function Navbar() {
               4 ví
             </Link>
 
+            <Link to="/categories">
+              Danh mục
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>

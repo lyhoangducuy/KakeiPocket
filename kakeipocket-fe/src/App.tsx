@@ -21,6 +21,8 @@ import MonthlyPlanPage from "./pages/MonthlyPlan/MonthlyPlanPage";
 import WalletConfigurationPage
   from "./pages/WalletConfiguration/WalletConfigurationPage";
 
+import CategoryPage from "./pages/Category/CategoryPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -86,6 +88,13 @@ function App() {
                 path="/wallet-configuration"
                 element={
                   <WalletConfigurationPage />
+                }
+              />
+
+              <Route
+                path="/categories"
+                element={
+                  <CategoryPage />
                 }
               />
 

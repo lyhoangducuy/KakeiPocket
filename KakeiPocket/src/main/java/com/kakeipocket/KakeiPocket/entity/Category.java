@@ -4,7 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.kakeipocket.KakeiPocket.enums.WalletType;
+import com.kakeipocket.KakeiPocket.enums.TransactionType;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -23,12 +23,12 @@ public class Category {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "wallet_type")
-    private WalletType walletType;
+    @Column(name = "type", nullable = false)
+    private TransactionType type;
 
     @Column(name = "name", nullable = false)
     private String name;
