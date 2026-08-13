@@ -25,10 +25,10 @@ public class MonthlyPlan {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "month", nullable = false)
+    @Column(name = "plan_month", nullable = false)
     private Integer month;
 
-    @Column(name = "year", nullable = false)
+    @Column(name = "plan_year", nullable = false)
     private Integer year;
 
     @Column(name = "income_target", precision = 15, scale = 2)
@@ -37,7 +37,6 @@ public class MonthlyPlan {
     @Column(name = "saving_target", precision = 15, scale = 2)
     private BigDecimal savingTarget;
 
-    @Lob
     @Column(name = "note")
     private String note;
 

@@ -20,11 +20,11 @@ export const createMonthlyPlan = async (
 export const getCurrentMonthlyPlan =
   async (): Promise<MonthlyPlan | null> => {
     try {
-      const response = await api.get<{ result: MonthlyPlan }>(
-        "/monthly-plans/current"
-      );
+      const response = await api.get<{
+        result: MonthlyPlan | null;
+      }>("/monthly-plans/current");
 
-      return response.data.result;
+      return response.data.result ?? null;
     } catch (error: any) {
       if (
         error.response?.status === 404 ||

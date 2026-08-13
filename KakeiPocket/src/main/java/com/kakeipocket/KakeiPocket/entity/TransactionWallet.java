@@ -14,7 +14,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionWallet extends BaseEntity{
+public class TransactionWallet extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class TransactionWallet extends BaseEntity{
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "monthly_plan_id")
+    @JoinColumn(name = "monthly_plan_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_transaction_monthly_plan"))
     private MonthlyPlan monthlyPlan;
 
     @Enumerated(EnumType.STRING)
@@ -39,12 +39,10 @@ public class TransactionWallet extends BaseEntity{
     @Column(name = "amount", precision = 15, scale = 2)
     private BigDecimal amount;
 
-    @Lob
     @Column(name = "description")
     private String description;
 
     @Column(name = "transaction_date")
     private LocalDate transactionDate;
-
 
 }

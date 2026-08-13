@@ -16,6 +16,8 @@ import RegisterPage from "./pages/auth/RegisterPage";
 import UserHomePage from "./pages/user/UserHomePage";
 import ProfilePage from "./pages/user/ProfilePage";
 
+import MonthlyPlanPage from "./pages/MonthlyPlan/MonthlyPlanPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -67,6 +69,13 @@ function App() {
                 path="/profile"
                 element={
                   <ProfilePage />
+                }
+              />
+
+              <Route
+                path="/monthly-plan"
+                element={
+                  <MonthlyPlanPage />
                 }
               />
 

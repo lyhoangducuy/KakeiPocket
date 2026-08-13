@@ -38,6 +38,10 @@ export default function Navbar() {
               Trang chủ
             </Link>
 
+            <Link to="/monthly-plan">
+              Kế hoạch tháng
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>

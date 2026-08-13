@@ -23,7 +23,7 @@ public class WalletLimit {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "monthly_plan_id", nullable = false)
+    @JoinColumn(name = "monthly_plan_id", nullable = false, referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_wallet_limit_monthly_plan"))
     private MonthlyPlan monthlyPlan;
 
     @Enumerated(EnumType.STRING)

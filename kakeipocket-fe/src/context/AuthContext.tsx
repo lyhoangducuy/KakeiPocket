@@ -13,7 +13,6 @@ import type {
   LoginResponse,
   RegisterRequest,
   RegisterResponse,
-  Role,
 } from "../types/auth";
 
 interface AuthContextType {

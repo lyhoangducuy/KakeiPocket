@@ -81,11 +81,11 @@ public class MonthlyPlanService {
                                 now.getMonthValue(),
                                 now.getYear()
                         )
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Current monthly plan not found"
-                                )
-                        );
+                        .orElse(null);
+
+        if (plan == null) {
+            return null;
+        }
 
         return toResponse(plan);
     }
