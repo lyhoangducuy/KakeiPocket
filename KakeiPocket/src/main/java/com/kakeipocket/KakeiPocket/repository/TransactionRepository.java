@@ -135,6 +135,63 @@ public interface TransactionRepository
             @Param("to") LocalDate to
     );
 
+    @Query(
+            "SELECT COUNT(t) FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.transactionDate BETWEEN :from AND :to"
+    )
+    long countByUserAndDateRange(
+            @Param("user") User user,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
+    );
+
+    @Query(
+            "SELECT COUNT(t) FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.type = :type "
+                    + "AND t.transactionDate BETWEEN :from AND :to"
+    )
+    long countByUserAndTypeAndDateRange(
+            @Param("user") User user,
+            @Param("type") TransactionType type,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
+    );
+
+    @Query(
+            "SELECT t FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.type = :type "
+                    + "AND t.transactionDate BETWEEN :from AND :to "
+                    + "ORDER BY t.amount DESC, t.id DESC"
+    )
+    List<Transaction> findTopExpense(
+            @Param("user") User user,
+            @Param("type") TransactionType type,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            Pageable pageable
+    );
+
+    @Query(
+            "SELECT t.transactionDate AS date, "
+                    + "SUM(t.amount) AS totalAmount "
+                    + "FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.type = :type "
+                    + "AND t.transactionDate BETWEEN :from AND :to "
+                    + "GROUP BY t.transactionDate "
+                    + "ORDER BY SUM(t.amount) DESC, t.transactionDate DESC"
+    )
+    List<DailyExpenseAggregate> aggregateExpenseByDay(
+            @Param("user") User user,
+            @Param("type") TransactionType type,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            Pageable pageable
+    );
+
     interface CategoryAggregate {
         Long getCategoryId();
 
@@ -153,6 +210,12 @@ public interface TransactionRepository
         LocalDate getDate();
 
         TransactionType getType();
+
+        BigDecimal getTotalAmount();
+    }
+
+    interface DailyExpenseAggregate {
+        LocalDate getDate();
 
         BigDecimal getTotalAmount();
     }

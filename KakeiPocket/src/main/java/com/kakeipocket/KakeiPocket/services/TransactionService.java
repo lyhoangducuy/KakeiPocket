@@ -91,7 +91,7 @@ public class TransactionService {
                 .category(category)
                 .monthlyPlan(monthlyPlan)
                 .type(TransactionType.INCOME)
-                .walletType(null)
+                .walletType(com.kakeipocket.KakeiPocket.enums.WalletType.SAVING)
                 .amount(request.getAmount())
                 .transactionDate(request.getTransactionDate())
                 .note(trimNote(request.getNote()))

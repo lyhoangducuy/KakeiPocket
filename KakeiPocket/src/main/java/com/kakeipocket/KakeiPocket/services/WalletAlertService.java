@@ -1,11 +1,12 @@
 package com.kakeipocket.KakeiPocket.services;
 
-import com.kakeipocket.KakeiPocket.constants.WalletAlertConstants;
+import com.kakeipocket.KakeiPocket.config.AppException;
 import com.kakeipocket.KakeiPocket.dto.WalletAlert.WalletAlertResponse;
 import com.kakeipocket.KakeiPocket.dto.WalletAlert.WalletAlertSummaryResponse;
 import com.kakeipocket.KakeiPocket.entity.MonthlyPlan;
 import com.kakeipocket.KakeiPocket.entity.User;
 import com.kakeipocket.KakeiPocket.entity.WalletLimit;
+import com.kakeipocket.KakeiPocket.enums.ErrorCode;
 import com.kakeipocket.KakeiPocket.enums.TransactionType;
 import com.kakeipocket.KakeiPocket.enums.WalletAlertStatus;
 import com.kakeipocket.KakeiPocket.enums.WalletType;
@@ -34,10 +35,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WalletAlertService {
 
-    private final TransactionRepository transactionRepository;
-    private final MonthlyPlanRepository monthlyPlanRepository;
-    private final WalletLimitRepository walletLimitRepository;
-    private final UserRepository userRepository;
+    private static final double WARNING_THRESHOLD = 80.0;
+    private static final double EXCEEDED_THRESHOLD = 100.0;
+    private static final int MIN_MONTH = 1;
+    private static final int MAX_MONTH = 12;
+    private static final int MIN_YEAR = 1970;
+    private static final int MAX_YEAR = 9999;
 
     private static final List<WalletType> ALERT_WALLET_TYPES = Arrays.asList(
             WalletType.NECESSARY,
@@ -46,6 +49,11 @@ public class WalletAlertService {
             WalletType.UNEXPECTED
     );
 
+    private final TransactionRepository transactionRepository;
+    private final MonthlyPlanRepository monthlyPlanRepository;
+    private final WalletLimitRepository walletLimitRepository;
+    private final UserRepository userRepository;
+
     @Transactional(readOnly = true)
     public WalletAlertSummaryResponse getWalletAlerts(
             Long userId,
@@ -53,7 +61,7 @@ public class WalletAlertService {
             Integer month
     ) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
         YearMonth targetMonth = resolveYearMonth(year, month);
         LocalDate from = targetMonth.atDay(1);
@@ -68,8 +76,15 @@ public class WalletAlertService {
         if (planOpt.isPresent()) {
             for (WalletLimit limit : walletLimitRepository
                     .findByMonthlyPlan(planOpt.get())) {
-                limitByWallet.put(limit.getWalletType(),
-                        limit.getLimitAmount());
+                if (limit.getWalletType() != null
+                        && ALERT_WALLET_TYPES.contains(limit.getWalletType())) {
+                    limitByWallet.put(
+                            limit.getWalletType(),
+                            limit.getLimitAmount() != null
+                                    ? limit.getLimitAmount()
+                                    : BigDecimal.ZERO
+                    );
+                }
             }
         }
 
@@ -78,16 +93,17 @@ public class WalletAlertService {
                 .aggregateExpenseByWallet(
                         user, TransactionType.EXPENSE, from, to
                 )) {
-            spentByWallet.put(agg.getWalletType(), agg.getTotalAmount());
+            if (agg.getWalletType() != null
+                    && ALERT_WALLET_TYPES.contains(agg.getWalletType())) {
+                spentByWallet.put(agg.getWalletType(), agg.getTotalAmount());
+            }
         }
 
         List<WalletAlertResponse> alerts = ALERT_WALLET_TYPES.stream()
                 .map(walletType -> buildAlert(
                         walletType,
-                        limitByWallet.getOrDefault(walletType,
-                                BigDecimal.ZERO),
-                        spentByWallet.getOrDefault(walletType,
-                                BigDecimal.ZERO)
+                        limitByWallet.getOrDefault(walletType, BigDecimal.ZERO),
+                        spentByWallet.getOrDefault(walletType, BigDecimal.ZERO)
                 ))
                 .sorted(alertComparator())
                 .collect(Collectors.toList());
@@ -154,10 +170,10 @@ public class WalletAlertService {
                 .divide(limit, 4, RoundingMode.HALF_UP);
 
         double pct = ratio.doubleValue();
-        if (pct >= WalletAlertConstants.EXCEEDED_THRESHOLD) {
+        if (pct >= EXCEEDED_THRESHOLD) {
             return WalletAlertStatus.EXCEEDED;
         }
-        if (pct >= WalletAlertConstants.WARNING_THRESHOLD) {
+        if (pct >= WARNING_THRESHOLD) {
             return WalletAlertStatus.WARNING;
         }
         return WalletAlertStatus.NORMAL;
@@ -198,13 +214,14 @@ public class WalletAlertService {
     }
 
     private YearMonth resolveYearMonth(Integer year, Integer month) {
-        int resolvedYear = (year != null)
-                ? year
-                : LocalDate.now().getYear();
+        int resolvedYear = (year != null) ? year : LocalDate.now().getYear();
         int resolvedMonth = (month != null) ? month : LocalDate.now().getMonthValue();
 
-        if (resolvedMonth < 1 || resolvedMonth > 12) {
-            throw new RuntimeException("Tháng không hợp lệ (1-12)");
+        if (resolvedMonth < MIN_MONTH || resolvedMonth > MAX_MONTH) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
+        }
+        if (resolvedYear < MIN_YEAR || resolvedYear > MAX_YEAR) {
+            throw new AppException(ErrorCode.INVALID_REQUEST);
         }
 
         return YearMonth.of(resolvedYear, resolvedMonth);

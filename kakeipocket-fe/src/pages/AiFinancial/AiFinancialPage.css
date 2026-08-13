@@ -1,0 +1,406 @@
+.ai-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ai-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-title-icon {
+  font-size: 32px;
+}
+
+.ai-subtitle {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.ai-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.ai-month-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ai-month-btn:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.ai-month-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-select {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1a1a2e;
+  background: white;
+  cursor: pointer;
+}
+
+.ai-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ai-disclaimer {
+  padding: 10px 14px;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 8px;
+  font-size: 12px;
+  margin: 0 0 16px;
+  border-left: 3px solid #9ca3af;
+}
+
+.ai-error-state {
+  max-width: 400px;
+  margin: 60px auto;
+  text-align: center;
+  padding: 32px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ai-error-message {
+  color: #6b7280;
+  margin: 0 0 20px;
+  font-size: 15px;
+}
+
+.ai-error-inline {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.ai-loading {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.ai-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: ai-spin 0.8s linear infinite;
+}
+
+.ai-loading-text {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0;
+}
+
+@keyframes ai-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ai-status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.ai-status-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.ai-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-status-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ai-status-summary {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ai-status-good {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.ai-status-fair {
+  background: #fefce8;
+  border: 1px solid #fde68a;
+  color: #854d0e;
+}
+
+.ai-status-warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #854d0e;
+}
+
+.ai-status-critical {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.ai-question-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #1e40af;
+}
+
+.ai-question-icon {
+  font-size: 18px;
+}
+
+.ai-clear-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #2563eb;
+  border-radius: 6px;
+  color: #2563eb;
+  font-size: 12px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.ai-clear-btn:hover:not(:disabled) {
+  background: #2563eb;
+  color: white;
+}
+
+.ai-clear-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-section {
+  background: white;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 12px;
+}
+
+.ai-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-section-icon {
+  font-size: 18px;
+}
+
+.ai-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-list-item {
+  position: relative;
+  padding: 10px 12px 10px 28px;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.ai-list-item::before {
+  content: "•";
+  position: absolute;
+  left: 12px;
+  top: 8px;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.ai-list-warning .ai-list-item {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.ai-list-warning .ai-list-item::before {
+  color: #dc2626;
+  content: "⚠";
+}
+
+.ai-list-suggestion .ai-list-item {
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.ai-list-suggestion .ai-list-item::before {
+  color: #16a34a;
+  content: "💰";
+}
+
+.ai-list-goal .ai-list-item {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.ai-list-goal .ai-list-item::before {
+  content: "";
+}
+
+.ai-goal-checkbox {
+  margin-right: 6px;
+  font-size: 18px;
+}
+
+.ai-question-box {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+}
+
+.ai-question-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-question-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 70px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+.ai-question-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ai-question-input:disabled {
+  opacity: 0.6;
+  background: #f9fafb;
+}
+
+.ai-btn-primary {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.ai-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.ai-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .ai-page {
+    padding: 0 16px;
+  }
+  .ai-title {
+    font-size: 22px;
+  }
+  .ai-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

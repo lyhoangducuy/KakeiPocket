@@ -345,6 +345,34 @@ export default function DashboardPage() {
         </div>
       )}
 
+      <div className="dash-quick-summary">
+        <button
+          className="dash-quick-card"
+          onClick={() =>
+            navigate(`/monthly-summary?year=${year}&month=${month}`)
+          }
+        >
+          <span className="dash-quick-icon">📊</span>
+          <span className="dash-quick-label">
+            Tổng kết tháng
+          </span>
+          <span className="dash-quick-arrow">→</span>
+        </button>
+
+        <button
+          className="dash-quick-card dash-quick-ai"
+          onClick={() =>
+            navigate(`/ai-financial?year=${year}&month=${month}`)
+          }
+        >
+          <span className="dash-quick-icon">🤖</span>
+          <span className="dash-quick-label">
+            Kakeibo AI
+          </span>
+          <span className="dash-quick-arrow">→</span>
+        </button>
+      </div>
+
       <div className="dash-section">
         <div className="dash-section-header">
           <h2 className="dash-section-title">Kế hoạch tháng</h2>

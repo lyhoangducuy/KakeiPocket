@@ -74,6 +74,14 @@ export default function Navbar() {
               Cảnh báo
             </Link>
 
+            <Link to="/monthly-summary">
+              Tổng kết
+            </Link>
+
+            <Link to="/ai-financial">
+              Kakeibo AI
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>

@@ -63,9 +63,16 @@ public enum ErrorCode {
     RESET_TOKEN_REQUIRED(
             1011,
             "Reset token is required"
-    ), UNAUTHENTICATED(
+    ),
+
+    UNAUTHENTICATED(
             1012,
             "User is not authenticated"
+    ),
+
+    AI_SERVICE_UNAVAILABLE(
+            1013,
+            "AI service is temporarily unavailable"
     );
 
     private final int code;

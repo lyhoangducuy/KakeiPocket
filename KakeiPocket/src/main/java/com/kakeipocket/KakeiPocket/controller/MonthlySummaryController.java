@@ -2,9 +2,9 @@ package com.kakeipocket.KakeiPocket.controller;
 
 import com.kakeipocket.KakeiPocket.config.ApiResponse;
 import com.kakeipocket.KakeiPocket.config.AppException;
-import com.kakeipocket.KakeiPocket.dto.WalletAlert.WalletAlertSummaryResponse;
+import com.kakeipocket.KakeiPocket.dto.MonthlySummary.MonthlySummaryResponse;
 import com.kakeipocket.KakeiPocket.enums.ErrorCode;
-import com.kakeipocket.KakeiPocket.services.WalletAlertService;
+import com.kakeipocket.KakeiPocket.services.MonthlySummaryService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -19,13 +19,13 @@ import org.springframework.web.bind.annotation.*;
         level = lombok.AccessLevel.PRIVATE,
         makeFinal = true
 )
-@RequestMapping("/api/wallet-alerts")
-public class WalletAlertController {
+@RequestMapping("/api/monthly-summary")
+public class MonthlySummaryController {
 
-    WalletAlertService walletAlertService;
+    MonthlySummaryService monthlySummaryService;
 
     @GetMapping
-    public ApiResponse<WalletAlertSummaryResponse> getWalletAlerts(
+    public ApiResponse<MonthlySummaryResponse> getMonthlySummary(
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month,
             HttpSession session
@@ -36,7 +36,7 @@ public class WalletAlertController {
         }
 
         return ApiResponse.success(
-                walletAlertService.getWalletAlerts(userId, year, month)
+                monthlySummaryService.getMonthlySummary(userId, year, month)
         );
     }
 }

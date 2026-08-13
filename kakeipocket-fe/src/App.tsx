@@ -36,6 +36,10 @@ import StatisticsPage from "./pages/Statistics/StatisticsPage";
 
 import WalletAlertsPage from "./pages/WalletAlerts/WalletAlertsPage";
 
+import MonthlySummaryPage from "./pages/MonthlySummary/MonthlySummaryPage";
+
+import AiFinancialPage from "./pages/AiFinancial/AiFinancialPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -150,6 +154,20 @@ function App() {
                 path="/wallet-alerts"
                 element={
                   <WalletAlertsPage />
+                }
+              />
+
+              <Route
+                path="/monthly-summary"
+                element={
+                  <MonthlySummaryPage />
+                }
+              />
+
+              <Route
+                path="/ai-financial"
+                element={
+                  <AiFinancialPage />
                 }
               />
 
