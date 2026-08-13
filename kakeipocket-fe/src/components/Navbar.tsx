@@ -33,45 +33,51 @@ export default function Navbar() {
       <div className="nav-links">
         {!isAuthenticated && (
           <>
-            <Link to="/">Trang chủ</Link>
-            <a href="#features">Tính năng</a>
-            <a href="#about">Giới thiệu</a>
-            <Link to="/login" className="nav-btn-secondary">
-              Đăng nhập
-            </Link>
-            <Link to="/register" className="nav-btn-primary">
-              Đăng ký
-            </Link>
+            <div className="nav-links-group">
+              <Link to="/">Trang chủ</Link>
+              <a href="#features">Tính năng</a>
+              <a href="#about">Giới thiệu</a>
+            </div>
+            <div className="nav-actions">
+              <Link to="/login" className="nav-btn-secondary">
+                Đăng nhập
+              </Link>
+              <Link to="/register" className="nav-btn-primary">
+                Đăng ký
+              </Link>
+            </div>
           </>
         )}
 
         {isAuthenticated && (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/monthly-plan">Kế hoạch</Link>
-            <Link to="/wallet-configuration">4 ví</Link>
-            <Link to="/categories">Danh mục</Link>
-            <Link to="/expenses">Chi tiêu</Link>
-            <Link to="/incomes">Thu nhập</Link>
-            <Link to="/transactions">Lịch sử</Link>
-            <Link to="/statistics">Thống kê</Link>
-            <Link to="/wallet-alerts">Cảnh báo</Link>
-            <Link to="/monthly-summary">Tổng kết</Link>
-            <Link to="/ai-financial">Kakeibo AI</Link>
-            <Link to="/profile">Profile</Link>
-            {isAdmin && <Link to="/admin">Admin</Link>}
-
-            <span className="nav-user">
-              {user?.email} ({user?.role})
-            </span>
-
-            <button
-              type="button"
-              className="nav-btn-secondary"
-              onClick={handleLogout}
-            >
-              Đăng xuất
-            </button>
+            <div className="nav-links-group">
+              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/monthly-plan">Kế hoạch</Link>
+              <Link to="/wallet-configuration">4 ví</Link>
+              <Link to="/categories">Danh mục</Link>
+              <Link to="/expenses">Chi tiêu</Link>
+              <Link to="/incomes">Thu nhập</Link>
+              <Link to="/transactions">Lịch sử</Link>
+              <Link to="/statistics">Thống kê</Link>
+              <Link to="/wallet-alerts">Cảnh báo</Link>
+              <Link to="/monthly-summary">Tổng kết</Link>
+              <Link to="/ai-financial">Kakeibo AI</Link>
+              <Link to="/profile">Profile</Link>
+              {isAdmin && <Link to="/admin">Admin</Link>}
+            </div>
+            <div className="nav-actions">
+              <span className="nav-user">
+                {user?.email} ({user?.role})
+              </span>
+              <button
+                type="button"
+                className="nav-btn-secondary"
+                onClick={handleLogout}
+              >
+                Đăng xuất
+              </button>
+            </div>
           </>
         )}
       </div>

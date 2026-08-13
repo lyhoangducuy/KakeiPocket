@@ -25,6 +25,21 @@ import type {
 
 import "./CategoryPage.css";
 
+const EMOJI_OPTIONS = [
+  "🍜", "🍔", "🍕", "🍣", "🍱", "🍰", "☕", "🍺",
+  "🛒", "🛍️", "👕", "👟", "💄", "💊", "🏥", "🏠",
+  "🚗", "⛽", "✈️", "🚌", "📱", "💻", "🎮", "📚",
+  "🎬", "🎵", "🏋️", "⚽", "🎁", "💼", "📈", "🐶",
+  "🐱", "🌳", "💡", "💧", "📦", "💰", "💵", "💳",
+  "🏦", "📊", "✏️", "🧹", "🔧", "🎓", "👶", "💍",
+];
+
+const COLOR_SWATCHES = [
+  "#3b82f6", "#ef4444", "#10b981", "#f59e0b",
+  "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+  "#6366f1", "#84cc16", "#06b6d4", "#a855f7",
+];
+
 type FilterType = "ALL" | CategoryType;
 
 export default function CategoryPage() {
@@ -293,6 +308,24 @@ export default function CategoryPage() {
                 maxLength={4}
                 disabled={isGuest}
               />
+              <div className="cat-emoji-picker">
+                {EMOJI_OPTIONS.map((e) => (
+                  <button
+                    key={e}
+                    type="button"
+                    className={`cat-emoji-btn ${
+                      formData.icon === e ? "active" : ""
+                    }`}
+                    onClick={() =>
+                      setFormData({ ...formData, icon: e })
+                    }
+                    disabled={isGuest}
+                    title={e}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="cat-field">
@@ -306,6 +339,24 @@ export default function CategoryPage() {
                 }
                 disabled={isGuest}
               />
+              <div className="cat-color-swatches">
+                {COLOR_SWATCHES.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    className={`cat-color-swatch ${
+                      formData.color === c ? "active" : ""
+                    }`}
+                    style={{ backgroundColor: c }}
+                    onClick={() =>
+                      setFormData({ ...formData, color: c })
+                    }
+                    disabled={isGuest}
+                    title={c}
+                    aria-label={`Chọn màu ${c}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
