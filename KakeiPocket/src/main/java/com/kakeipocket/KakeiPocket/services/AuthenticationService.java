@@ -104,7 +104,32 @@ public class AuthenticationService {
                 .roles(roles)
                 .build();
     }
+public LoginResponseDTO getCurrentUser(
+        HttpSession session) {
 
+    Long userId =
+            (Long) session.getAttribute("userId");
+
+    if (userId == null) {
+        throw new AppException(
+                ErrorCode.UNAUTHENTICATED
+        );
+    }
+
+    User user =
+            authenticationRepository
+                    .findById(userId)
+                    .orElseThrow(() ->
+                            new AppException(
+                                    ErrorCode.USER_NOT_FOUND
+                            )
+                    );
+
+    return LoginResponseDTO.builder()
+            .email(user.getEmail())
+            .roles(user.getRole().getName())
+            .build();
+}
     // =========================
     // REGISTER
     // =========================

@@ -17,112 +17,111 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@FieldDefaults(
-        level = lombok.AccessLevel.PRIVATE,
-        makeFinal = true
-)
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
-    AuthenticationService authenticationService;
+        AuthenticationService authenticationService;
 
+        // =========================
+        // LOGIN
+        // =========================
 
-    // =========================
-    // LOGIN
-    // =========================
+        @PostMapping("/login")
+        public ApiResponse<LoginResponseDTO> login(
+                        @RequestBody @Valid LoginRequestDTO request,
+                        HttpSession session) {
 
-    @PostMapping("/login")
-    public ApiResponse<LoginResponseDTO> login(
-            @RequestBody @Valid LoginRequestDTO request,
-            HttpSession session) {
+                return ApiResponse.<LoginResponseDTO>builder()
+                                .code(1000)
+                                .message("Login successfully")
+                                .result(
+                                                authenticationService.login(
+                                                                request,
+                                                                session))
+                                .build();
+        }
 
-        return ApiResponse.<LoginResponseDTO>builder()
-                .code(1000)
-                .message("Login successfully")
-                .result(
-                        authenticationService.login(
-                                request,
-                                session
-                        )
-                )
-                .build();
-    }
+        // =========================
+        // REGISTER
+        // =========================
 
+        @PostMapping("/register")
+        public ApiResponse<RegisterResponseDTO> register(
+                        @RequestBody @Valid RegisterRequestDTO request) {
 
-    // =========================
-    // REGISTER
-    // =========================
+                return ApiResponse.<RegisterResponseDTO>builder()
+                                .code(1000)
+                                .message("Register successfully")
+                                .result(
+                                                authenticationService.register(
+                                                                request))
+                                .build();
+        }
 
-    @PostMapping("/register")
-    public ApiResponse<RegisterResponseDTO> register(
-            @RequestBody @Valid RegisterRequestDTO request) {
+        // =========================
+        // LOGOUT
+        // =========================
 
-        return ApiResponse.<RegisterResponseDTO>builder()
-                .code(1000)
-                .message("Register successfully")
-                .result(
-                        authenticationService.register(
-                                request
-                        )
-                )
-                .build();
-    }
+        @PostMapping("/logout")
+        public ApiResponse<Void> logout(
+                        HttpSession session) {
 
+                authenticationService.logout(session);
 
-    // =========================
-    // LOGOUT
-    // =========================
+                return ApiResponse.<Void>builder()
+                                .code(1000)
+                                .message("Logout successfully")
+                                .build();
+        }
 
-    @PostMapping("/logout")
-    public ApiResponse<Void> logout(
-            HttpSession session) {
+        // =========================
+        // FORGOT PASSWORD
+        // =========================
 
-        authenticationService.logout(session);
+        @PostMapping("/forgot-password")
+        public ApiResponse<String> forgotPassword(
+                        @RequestParam String email) {
 
-        return ApiResponse.<Void>builder()
-                .code(1000)
-                .message("Logout successfully")
-                .build();
-    }
+                String token = authenticationService
+                                .forgotPassword(email);
 
+                return ApiResponse.<String>builder()
+                                .code(1000)
+                                .message("Reset token generated")
+                                .result(token)
+                                .build();
+        }
 
-    // =========================
-    // FORGOT PASSWORD
-    // =========================
+        // =========================
+        // RESET PASSWORD
+        // =========================
 
-    @PostMapping("/forgot-password")
-    public ApiResponse<String> forgotPassword(
-            @RequestParam String email) {
+        @PostMapping("/reset-password")
+        public ApiResponse<Void> resetPassword(
+                        @RequestParam String token,
+                        @RequestParam String newPassword) {
 
-        String token =
-                authenticationService
-                        .forgotPassword(email);
+                authenticationService.resetPassword(
+                                token,
+                                newPassword);
 
-        return ApiResponse.<String>builder()
-                .code(1000)
-                .message("Reset token generated")
-                .result(token)
-                .build();
-    }
+                return ApiResponse.<Void>builder()
+                                .code(1000)
+                                .message("Password reset successfully")
+                                .build();
+        }
 
+        @GetMapping("/me")
+        public ApiResponse<LoginResponseDTO> getCurrentUser(
+                        HttpSession session) {
 
-    // =========================
-    // RESET PASSWORD
-    // =========================
-
-    @PostMapping("/reset-password")
-    public ApiResponse<Void> resetPassword(
-            @RequestParam String token,
-            @RequestParam String newPassword) {
-
-        authenticationService.resetPassword(
-                token,
-                newPassword
-        );
-
-        return ApiResponse.<Void>builder()
-                .code(1000)
-                .message("Password reset successfully")
-                .build();
-    }
+                return ApiResponse.<LoginResponseDTO>builder()
+                                .code(1000)
+                                .message("Get current user successfully")
+                                .result(
+                                                authenticationService
+                                                                .getCurrentUser(session))
+                                .build();
+        }
 }

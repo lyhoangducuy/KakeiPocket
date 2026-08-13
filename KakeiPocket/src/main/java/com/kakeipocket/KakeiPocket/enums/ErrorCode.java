@@ -63,6 +63,9 @@ public enum ErrorCode {
     RESET_TOKEN_REQUIRED(
             1011,
             "Reset token is required"
+    ), UNAUTHENTICATED(
+            1012,
+            "User is not authenticated"
     );
 
     private final int code;
