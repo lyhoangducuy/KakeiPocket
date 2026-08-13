@@ -25,6 +25,13 @@ import CategoryPage from "./pages/Category/CategoryPage";
 
 import ExpensePage from "./pages/Expense/ExpensePage";
 
+import IncomePage from "./pages/Income/IncomePage";
+
+import TransactionHistoryPage
+  from "./pages/TransactionHistory/TransactionHistoryPage";
+
+import DashboardPage from "./pages/Dashboard/DashboardPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -66,6 +73,13 @@ function App() {
             >
 
               <Route
+                path="/dashboard"
+                element={
+                  <DashboardPage />
+                }
+              />
+
+              <Route
                 path="/"
                 element={
                   <UserHomePage />
@@ -104,6 +118,20 @@ function App() {
                 path="/expenses"
                 element={
                   <ExpensePage />
+                }
+              />
+
+              <Route
+                path="/incomes"
+                element={
+                  <IncomePage />
+                }
+              />
+
+              <Route
+                path="/transactions"
+                element={
+                  <TransactionHistoryPage />
                 }
               />
 

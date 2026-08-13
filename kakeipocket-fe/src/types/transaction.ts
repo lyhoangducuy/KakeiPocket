@@ -6,12 +6,46 @@ export type WalletType =
 
 export type TransactionType = "EXPENSE" | "INCOME";
 
+export type TransactionFilterType =
+  | "ALL"
+  | "EXPENSE"
+  | "INCOME";
+
+export type TransactionSort =
+  | "DATE_DESC"
+  | "DATE_ASC"
+  | "AMOUNT_DESC"
+  | "AMOUNT_ASC";
+
+export interface TransactionFilter {
+  type?: TransactionType;
+  categoryId?: number;
+  walletType?: WalletType;
+  from?: string;
+  to?: string;
+  keyword?: string;
+  sort?: TransactionSort;
+}
+
 export interface ExpenseTransaction {
   id: number;
   type: TransactionType;
   categoryId: number;
   categoryName: string;
-  walletType: WalletType;
+  walletType: WalletType | null;
+  amount: number;
+  transactionDate: string;
+  note: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface TransactionDetail {
+  id: number;
+  type: TransactionType;
+  categoryId: number;
+  categoryName: string;
+  walletType: WalletType | null;
   amount: number;
   transactionDate: string;
   note: string | null;
@@ -30,6 +64,20 @@ export interface CreateExpenseRequest {
 export interface UpdateExpenseRequest {
   categoryId: number;
   walletType: WalletType;
+  amount: number;
+  transactionDate: string;
+  note?: string;
+}
+
+export interface CreateIncomeRequest {
+  categoryId: number;
+  amount: number;
+  transactionDate: string;
+  note?: string;
+}
+
+export interface UpdateIncomeRequest {
+  categoryId: number;
   amount: number;
   transactionDate: string;
   note?: string;

@@ -42,7 +42,7 @@ public class Transaction {
     private TransactionType type;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "wallet_type", nullable = false)
+    @Column(name = "wallet_type")
     private WalletType walletType;
 
     @Column(name = "amount", nullable = false, precision = 15, scale = 2)

@@ -2,8 +2,13 @@ package com.kakeipocket.KakeiPocket.controller;
 
 import com.kakeipocket.KakeiPocket.config.ApiResponse;
 import com.kakeipocket.KakeiPocket.dto.Transaction.CreateExpenseRequest;
+import com.kakeipocket.KakeiPocket.dto.Transaction.CreateIncomeRequest;
+import com.kakeipocket.KakeiPocket.dto.Transaction.TransactionDetailResponse;
 import com.kakeipocket.KakeiPocket.dto.Transaction.TransactionResponse;
 import com.kakeipocket.KakeiPocket.dto.Transaction.UpdateExpenseRequest;
+import com.kakeipocket.KakeiPocket.dto.Transaction.UpdateIncomeRequest;
+import com.kakeipocket.KakeiPocket.enums.TransactionType;
+import com.kakeipocket.KakeiPocket.enums.WalletType;
 import com.kakeipocket.KakeiPocket.services.TransactionService;
 
 import jakarta.servlet.http.HttpSession;
@@ -29,6 +34,38 @@ public class TransactionController {
 
     TransactionService transactionService;
 
+    @GetMapping
+    public ApiResponse<List<TransactionResponse>> getTransactionHistory(
+            @RequestParam(required = false) TransactionType type,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) WalletType walletType,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String sort,
+            HttpSession session
+    ) {
+        return ApiResponse
+                .<List<TransactionResponse>>builder()
+                .code(1000)
+                .message("Get transactions successfully")
+                .result(
+                        transactionService.getTransactionHistory(
+                                (Long) session.getAttribute("userId"),
+                                type,
+                                categoryId,
+                                walletType,
+                                from,
+                                to,
+                                keyword,
+                                sort
+                        )
+                )
+                .build();
+    }
+
     @PostMapping("/expense")
     public ApiResponse<TransactionResponse> createExpense(
             @RequestBody @Valid CreateExpenseRequest request,
@@ -40,6 +77,24 @@ public class TransactionController {
                 .message("Create expense successfully")
                 .result(
                         transactionService.createExpense(
+                                (Long) session.getAttribute("userId"),
+                                request
+                        )
+                )
+                .build();
+    }
+
+    @PostMapping("/income")
+    public ApiResponse<TransactionResponse> createIncome(
+            @RequestBody @Valid CreateIncomeRequest request,
+            HttpSession session
+    ) {
+        return ApiResponse
+                .<TransactionResponse>builder()
+                .code(1000)
+                .message("Create income successfully")
+                .result(
+                        transactionService.createIncome(
                                 (Long) session.getAttribute("userId"),
                                 request
                         )
@@ -60,8 +115,32 @@ public class TransactionController {
                 .code(1000)
                 .message("Get expenses successfully")
                 .result(
-                        transactionService.getExpenses(
+                        transactionService.getTransactions(
                                 (Long) session.getAttribute("userId"),
+                                TransactionType.EXPENSE,
+                                from,
+                                to
+                        )
+                )
+                .build();
+    }
+
+    @GetMapping("/incomes")
+    public ApiResponse<List<TransactionResponse>> getIncomes(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+            HttpSession session
+    ) {
+        return ApiResponse
+                .<List<TransactionResponse>>builder()
+                .code(1000)
+                .message("Get incomes successfully")
+                .result(
+                        transactionService.getTransactions(
+                                (Long) session.getAttribute("userId"),
+                                TransactionType.INCOME,
                                 from,
                                 to
                         )
@@ -70,16 +149,16 @@ public class TransactionController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<TransactionResponse> getExpenseById(
+    public ApiResponse<TransactionDetailResponse> getTransactionDetail(
             @PathVariable Long id,
             HttpSession session
     ) {
         return ApiResponse
-                .<TransactionResponse>builder()
+                .<TransactionDetailResponse>builder()
                 .code(1000)
-                .message("Get expense successfully")
+                .message("Get transaction successfully")
                 .result(
-                        transactionService.getExpenseById(
+                        transactionService.getTransactionDetail(
                                 (Long) session.getAttribute("userId"),
                                 id
                         )
@@ -87,7 +166,7 @@ public class TransactionController {
                 .build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/expense")
     public ApiResponse<TransactionResponse> updateExpense(
             @PathVariable Long id,
             @RequestBody @Valid UpdateExpenseRequest request,
@@ -107,12 +186,32 @@ public class TransactionController {
                 .build();
     }
 
+    @PutMapping("/{id}/income")
+    public ApiResponse<TransactionResponse> updateIncome(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateIncomeRequest request,
+            HttpSession session
+    ) {
+        return ApiResponse
+                .<TransactionResponse>builder()
+                .code(1000)
+                .message("Update income successfully")
+                .result(
+                        transactionService.updateIncome(
+                                (Long) session.getAttribute("userId"),
+                                id,
+                                request
+                        )
+                )
+                .build();
+    }
+
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteExpense(
+    public ApiResponse<Void> deleteTransaction(
             @PathVariable Long id,
             HttpSession session
     ) {
-        transactionService.deleteExpense(
+        transactionService.deleteTransaction(
                 (Long) session.getAttribute("userId"),
                 id
         );
@@ -120,7 +219,7 @@ public class TransactionController {
         return ApiResponse
                 .<Void>builder()
                 .code(1000)
-                .message("Delete expense successfully")
+                .message("Delete transaction successfully")
                 .result(null)
                 .build();
     }

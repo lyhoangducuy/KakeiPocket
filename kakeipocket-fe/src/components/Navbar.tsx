@@ -34,6 +34,10 @@ export default function Navbar() {
 
         {user && (
           <>
+            <Link to="/dashboard">
+              Dashboard
+            </Link>
+
             <Link to="/">
               Trang chủ
             </Link>
@@ -52,6 +56,14 @@ export default function Navbar() {
 
             <Link to="/expenses">
               Chi tiêu
+            </Link>
+
+            <Link to="/incomes">
+              Thu nhập
+            </Link>
+
+            <Link to="/transactions">
+              Lịch sử
             </Link>
 
             <Link to="/profile">

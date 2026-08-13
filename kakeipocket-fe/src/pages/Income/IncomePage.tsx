@@ -6,22 +6,20 @@ import {
 
 import { getCategories } from "../../api/categoryApi";
 import {
-  createExpense,
-  getExpenses,
-  updateExpense,
+  createIncome,
+  getIncomes,
+  updateIncome,
   deleteTransaction,
 } from "../../api/transactionApi";
 
 import type { Category } from "../../types/category";
 import type {
-  CreateExpenseRequest,
+  CreateIncomeRequest,
   ExpenseTransaction,
-  UpdateExpenseRequest,
-  WalletType,
+  UpdateIncomeRequest,
 } from "../../types/transaction";
-import { WALLET_OPTIONS } from "../../types/transaction";
 
-import "./ExpensePage.css";
+import "./IncomePage.css";
 
 const formatCurrency = (
   value: number | null | undefined
@@ -71,7 +69,6 @@ const getLastDayOfMonth = (): string => {
 
 interface FormData {
   categoryId: string;
-  walletType: WalletType;
   amount: string;
   transactionDate: string;
   note: string;
@@ -79,13 +76,12 @@ interface FormData {
 
 const initialFormData: FormData = {
   categoryId: "",
-  walletType: "NECESSARY",
   amount: "",
   transactionDate: getTodayDate(),
   note: "",
 };
 
-export default function ExpensePage() {
+export default function IncomePage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -120,7 +116,7 @@ export default function ExpensePage() {
     setError("");
 
     try {
-      const cats = await getCategories("EXPENSE");
+      const cats = await getCategories("INCOME");
       setCategories(cats);
 
       if (cats.length > 0) {
@@ -145,7 +141,7 @@ export default function ExpensePage() {
 
   const loadTransactions = async () => {
     try {
-      const data = await getExpenses(filterFrom, filterTo);
+      const data = await getIncomes(filterFrom, filterTo);
       setTransactions(data);
     } catch (err: any) {
       if (err.response?.data?.message) {
@@ -189,7 +185,7 @@ export default function ExpensePage() {
     }
 
     if (categories.length === 0) {
-      setError("Bạn chưa có danh mục chi tiêu nào.");
+      setError("Bạn chưa có danh mục thu nhập nào.");
       return;
     }
 
@@ -198,20 +194,19 @@ export default function ExpensePage() {
     try {
       const payload = {
         categoryId: parseInt(formData.categoryId, 10),
-        walletType: formData.walletType,
         amount,
         transactionDate: formData.transactionDate,
         note: formData.note.trim() || undefined,
       };
 
       if (editingId) {
-        const data: UpdateExpenseRequest = payload;
-        await updateExpense(editingId, data);
-        setSuccess("Cập nhật khoản chi thành công!");
+        const data: UpdateIncomeRequest = payload;
+        await updateIncome(editingId, data);
+        setSuccess("Cập nhật khoản thu thành công!");
       } else {
-        const data: CreateExpenseRequest = payload;
-        await createExpense(data);
-        setSuccess("Tạo khoản chi thành công!");
+        const data: CreateIncomeRequest = payload;
+        await createIncome(data);
+        setSuccess("Tạo khoản thu thành công!");
       }
 
       resetForm();
@@ -242,8 +237,6 @@ export default function ExpensePage() {
     setEditingId(transaction.id);
     setFormData({
       categoryId: String(transaction.categoryId),
-      walletType:
-        transaction.walletType ?? "NECESSARY",
       amount: formatCurrency(transaction.amount),
       transactionDate: transaction.transactionDate,
       note: transaction.note || "",
@@ -268,7 +261,7 @@ export default function ExpensePage() {
     try {
       await deleteTransaction(deleteTarget.id);
       setDeleteTarget(null);
-      setSuccess("Xóa khoản chi thành công!");
+      setSuccess("Xóa khoản thu thành công!");
       await loadTransactions();
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -283,122 +276,80 @@ export default function ExpensePage() {
     }
   };
 
-  const getWalletLabel = (
-    wallet: WalletType | null
-  ): string => {
-    if (!wallet) return "";
-    return (
-      WALLET_OPTIONS.find((w) => w.value === wallet)?.label ||
-      wallet
-    );
-  };
-
-  const getWalletIcon = (
-    wallet: WalletType | null
-  ): string => {
-    if (!wallet) return "💼";
-    return (
-      WALLET_OPTIONS.find((w) => w.value === wallet)?.icon ||
-      "💼"
-    );
-  };
-
-  const totalExpense = transactions.reduce(
+  const totalIncome = transactions.reduce(
     (sum, t) => sum + t.amount,
     0
   );
 
   if (loading) {
     return (
-      <div className="exp-loading">
-        <div className="exp-loading-spinner"></div>
+      <div className="inc-loading">
+        <div className="inc-loading-spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="exp-page">
-      <div className="exp-header">
-        <h1 className="exp-title">Chi tiêu</h1>
-        <p className="exp-subtitle">
-          Ghi lại và quản lý các khoản chi tiêu của bạn.
+    <div className="inc-page">
+      <div className="inc-header">
+        <h1 className="inc-title">Thu nhập</h1>
+        <p className="inc-subtitle">
+          Quản lý các khoản thu nhập của bạn.
         </p>
       </div>
 
-      {error && <div className="exp-error">{error}</div>}
+      {error && <div className="inc-error">{error}</div>}
       {success && (
-        <div className="exp-success">{success}</div>
+        <div className="inc-success">{success}</div>
       )}
 
-      <div className="exp-form-card">
-        <h2 className="exp-form-title">
-          {editingId ? "Sửa khoản chi" : "Thêm khoản chi"}
+      <div className="inc-form-card">
+        <h2 className="inc-form-title">
+          {editingId ? "Sửa khoản thu" : "Thêm khoản thu"}
         </h2>
 
         <form onSubmit={handleSubmit}>
-          <div className="exp-row">
-            <div className="exp-field">
-              <label className="exp-label">Danh mục</label>
-              <select
-                className="exp-select"
-                value={formData.categoryId}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    categoryId: e.target.value,
-                  })
-                }
-              >
-                <option value="">-- Chọn danh mục --</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="exp-field">
-              <label className="exp-label">Ví</label>
-              <select
-                className="exp-select"
-                value={formData.walletType}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    walletType: e.target.value as WalletType,
-                  })
-                }
-              >
-                {WALLET_OPTIONS.map((w) => (
-                  <option key={w.value} value={w.value}>
-                    {w.icon} {w.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div className="inc-field">
+            <label className="inc-label">Danh mục</label>
+            <select
+              className="inc-select"
+              value={formData.categoryId}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  categoryId: e.target.value,
+                })
+              }
+            >
+              <option value="">-- Chọn danh mục --</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="exp-row">
-            <div className="exp-field">
-              <label className="exp-label">Số tiền</label>
-              <div className="exp-input-wrapper">
+          <div className="inc-row">
+            <div className="inc-field">
+              <label className="inc-label">Số tiền</label>
+              <div className="inc-input-wrapper">
                 <input
                   type="text"
-                  className="exp-input"
+                  className="inc-input"
                   placeholder="0"
                   value={formData.amount}
                   onChange={handleAmountChange}
                 />
-                <span className="exp-input-suffix">₫</span>
+                <span className="inc-input-suffix">₫</span>
               </div>
             </div>
 
-            <div className="exp-field">
-              <label className="exp-label">Ngày</label>
+            <div className="inc-field">
+              <label className="inc-label">Ngày</label>
               <input
                 type="date"
-                className="exp-input"
+                className="inc-input"
                 value={formData.transactionDate}
                 onChange={(e) =>
                   setFormData({
@@ -410,12 +361,12 @@ export default function ExpensePage() {
             </div>
           </div>
 
-          <div className="exp-field">
-            <label className="exp-label">Ghi chú</label>
+          <div className="inc-field">
+            <label className="inc-label">Ghi chú</label>
             <input
               type="text"
-              className="exp-input"
-              placeholder="Ví dụ: Ăn tối với bạn"
+              className="inc-input"
+              placeholder="Ví dụ: Lương tháng 8"
               value={formData.note}
               onChange={(e) =>
                 setFormData({ ...formData, note: e.target.value })
@@ -423,11 +374,11 @@ export default function ExpensePage() {
             />
           </div>
 
-          <div className="exp-form-actions">
+          <div className="inc-form-actions">
             {editingId && (
               <button
                 type="button"
-                className="exp-btn-secondary"
+                className="inc-btn-secondary"
                 onClick={handleCancelEdit}
               >
                 Hủy
@@ -435,35 +386,35 @@ export default function ExpensePage() {
             )}
             <button
               type="submit"
-              className="exp-btn-primary"
+              className="inc-btn-primary"
               disabled={submitting}
             >
               {submitting
                 ? "Đang lưu..."
                 : editingId
                   ? "Cập nhật"
-                  : "Lưu khoản chi"}
+                  : "Lưu khoản thu"}
             </button>
           </div>
         </form>
       </div>
 
-      <div className="exp-filter-card">
-        <div className="exp-filter-row">
-          <div className="exp-field">
-            <label className="exp-label">Từ ngày</label>
+      <div className="inc-filter-card">
+        <div className="inc-filter-row">
+          <div className="inc-field">
+            <label className="inc-label">Từ ngày</label>
             <input
               type="date"
-              className="exp-input"
+              className="inc-input"
               value={filterFrom}
               onChange={(e) => setFilterFrom(e.target.value)}
             />
           </div>
-          <div className="exp-field">
-            <label className="exp-label">Đến ngày</label>
+          <div className="inc-field">
+            <label className="inc-label">Đến ngày</label>
             <input
               type="date"
-              className="exp-input"
+              className="inc-input"
               value={filterTo}
               onChange={(e) => setFilterTo(e.target.value)}
             />
@@ -471,56 +422,52 @@ export default function ExpensePage() {
         </div>
       </div>
 
-      <div className="exp-summary-card">
-        <span className="exp-summary-label">Tổng chi tiêu</span>
-        <span className="exp-summary-value">
-          {formatCurrency(totalExpense)} ₫
+      <div className="inc-summary-card">
+        <span className="inc-summary-label">Tổng thu nhập</span>
+        <span className="inc-summary-value">
+          {formatCurrency(totalIncome)} ₫
         </span>
       </div>
 
       {transactions.length === 0 ? (
-        <div className="exp-empty">
-          <p>Chưa có khoản chi tiêu nào.</p>
-          <p className="exp-empty-hint">
-            Hãy thêm khoản chi đầu tiên của bạn ở form phía trên.
+        <div className="inc-empty">
+          <p>Chưa có khoản thu nhập nào.</p>
+          <p className="inc-empty-hint">
+            Hãy thêm khoản thu đầu tiên của bạn ở form phía trên.
           </p>
         </div>
       ) : (
-        <div className="exp-list">
+        <div className="inc-list">
           {transactions.map((tx) => (
-            <div key={tx.id} className="exp-item">
-              <div className="exp-item-main">
-                <div className="exp-item-header">
-                  <span className="exp-item-date">
+            <div key={tx.id} className="inc-item">
+              <div className="inc-item-main">
+                <div className="inc-item-header">
+                  <span className="inc-item-date">
                     {formatDate(tx.transactionDate)}
                   </span>
-                  <span className="exp-item-amount">
-                    -{formatCurrency(tx.amount)} ₫
+                  <span className="inc-item-amount">
+                    +{formatCurrency(tx.amount)} ₫
                   </span>
                 </div>
-                <div className="exp-item-info">
-                  <span className="exp-item-category">
+                <div className="inc-item-info">
+                  <span className="inc-item-category">
                     {tx.categoryName}
-                  </span>
-                  <span className="exp-item-wallet">
-                    {getWalletIcon(tx.walletType)}{" "}
-                    {getWalletLabel(tx.walletType)}
                   </span>
                 </div>
                 {tx.note && (
-                  <p className="exp-item-note">{tx.note}</p>
+                  <p className="inc-item-note">{tx.note}</p>
                 )}
               </div>
-              <div className="exp-item-actions">
+              <div className="inc-item-actions">
                 <button
-                  className="exp-btn-icon"
+                  className="inc-btn-icon"
                   onClick={() => handleEdit(tx)}
                   title="Sửa"
                 >
                   ✏️
                 </button>
                 <button
-                  className="exp-btn-icon"
+                  className="inc-btn-icon"
                   onClick={() => setDeleteTarget(tx)}
                   title="Xóa"
                 >
@@ -533,21 +480,21 @@ export default function ExpensePage() {
       )}
 
       {deleteTarget && (
-        <div className="exp-modal-overlay">
-          <div className="exp-modal">
-            <h2 className="exp-modal-title">Xác nhận xóa</h2>
-            <p className="exp-modal-text">
-              Bạn có chắc muốn xóa khoản chi này?
+        <div className="inc-modal-overlay">
+          <div className="inc-modal">
+            <h2 className="inc-modal-title">Xác nhận xóa</h2>
+            <p className="inc-modal-text">
+              Bạn có chắc muốn xóa khoản thu này?
             </p>
-            <div className="exp-modal-actions">
+            <div className="inc-modal-actions">
               <button
-                className="exp-btn-secondary"
+                className="inc-btn-secondary"
                 onClick={() => setDeleteTarget(null)}
               >
                 Hủy
               </button>
               <button
-                className="exp-btn-danger"
+                className="inc-btn-danger"
                 onClick={handleDelete}
                 disabled={deleting !== null}
               >
