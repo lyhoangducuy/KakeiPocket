@@ -42,6 +42,10 @@ export default function Navbar() {
               Kế hoạch tháng
             </Link>
 
+            <Link to="/wallet-configuration">
+              4 ví
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>

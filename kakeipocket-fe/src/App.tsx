@@ -18,6 +18,9 @@ import ProfilePage from "./pages/user/ProfilePage";
 
 import MonthlyPlanPage from "./pages/MonthlyPlan/MonthlyPlanPage";
 
+import WalletConfigurationPage
+  from "./pages/WalletConfiguration/WalletConfigurationPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -76,6 +79,13 @@ function App() {
                 path="/monthly-plan"
                 element={
                   <MonthlyPlanPage />
+                }
+              />
+
+              <Route
+                path="/wallet-configuration"
+                element={
+                  <WalletConfigurationPage />
                 }
               />
 
