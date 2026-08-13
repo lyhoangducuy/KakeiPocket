@@ -101,10 +101,58 @@ public interface TransactionRepository
             Pageable pageable
     );
 
+    @Query(
+            "SELECT t.walletType AS walletType, "
+                    + "SUM(t.amount) AS totalAmount "
+                    + "FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.type = :type "
+                    + "AND t.walletType IS NOT NULL "
+                    + "AND t.transactionDate BETWEEN :from AND :to "
+                    + "GROUP BY t.walletType "
+                    + "ORDER BY t.walletType"
+    )
+    List<WalletAggregate> aggregateExpenseByWallet(
+            @Param("user") User user,
+            @Param("type") TransactionType type,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
+    );
+
+    @Query(
+            "SELECT t.transactionDate AS date, "
+                    + "t.type AS type, "
+                    + "SUM(t.amount) AS totalAmount "
+                    + "FROM Transaction t "
+                    + "WHERE t.user = :user "
+                    + "AND t.transactionDate BETWEEN :from AND :to "
+                    + "GROUP BY t.transactionDate, t.type "
+                    + "ORDER BY t.transactionDate"
+    )
+    List<DailyAggregate> aggregateDaily(
+            @Param("user") User user,
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to
+    );
+
     interface CategoryAggregate {
         Long getCategoryId();
 
         String getCategoryName();
+
+        BigDecimal getTotalAmount();
+    }
+
+    interface WalletAggregate {
+        WalletType getWalletType();
+
+        BigDecimal getTotalAmount();
+    }
+
+    interface DailyAggregate {
+        LocalDate getDate();
+
+        TransactionType getType();
 
         BigDecimal getTotalAmount();
     }

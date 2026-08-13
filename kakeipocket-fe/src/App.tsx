@@ -32,6 +32,10 @@ import TransactionHistoryPage
 
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 
+import StatisticsPage from "./pages/Statistics/StatisticsPage";
+
+import WalletAlertsPage from "./pages/WalletAlerts/WalletAlertsPage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -132,6 +136,20 @@ function App() {
                 path="/transactions"
                 element={
                   <TransactionHistoryPage />
+                }
+              />
+
+              <Route
+                path="/statistics"
+                element={
+                  <StatisticsPage />
+                }
+              />
+
+              <Route
+                path="/wallet-alerts"
+                element={
+                  <WalletAlertsPage />
                 }
               />
 

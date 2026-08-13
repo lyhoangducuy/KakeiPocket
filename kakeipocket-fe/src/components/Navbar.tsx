@@ -66,6 +66,14 @@ export default function Navbar() {
               Lịch sử
             </Link>
 
+            <Link to="/statistics">
+              Thống kê
+            </Link>
+
+            <Link to="/wallet-alerts">
+              Cảnh báo
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>

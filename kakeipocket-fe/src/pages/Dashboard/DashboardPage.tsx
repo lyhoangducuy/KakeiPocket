@@ -5,11 +5,15 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { getDashboard } from "../../api/dashboardApi";
+import { getWalletAlerts } from "../../api/walletAlertApi";
+
+import WalletAlertCard from "../../components/WalletAlertCard";
 
 import type {
   DashboardResponse,
   WalletSummary,
 } from "../../types/dashboard";
+import type { WalletAlertSummary } from "../../types/walletAlert";
 import { WALLET_OPTIONS } from "../../types/transaction";
 import type { WalletType } from "../../types/transaction";
 
@@ -77,6 +81,8 @@ export default function DashboardPage() {
   const [month, setMonth] = useState<number>(now.month);
 
   const [data, setData] = useState<DashboardResponse | null>(null);
+  const [alerts, setAlerts] =
+    useState<WalletAlertSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -88,8 +94,12 @@ export default function DashboardPage() {
     setError("");
 
     try {
-      const result = await getDashboard(targetYear, targetMonth);
-      setData(result);
+      const [dashboardData, alertsData] = await Promise.all([
+        getDashboard(targetYear, targetMonth),
+        getWalletAlerts(targetYear, targetMonth),
+      ]);
+      setData(dashboardData);
+      setAlerts(alertsData);
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -283,6 +293,57 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {alerts && (
+        <div className="dash-section">
+          <div className="dash-section-header">
+            <h2 className="dash-section-title">
+              Cảnh báo ngân sách
+            </h2>
+            {alerts.totalAlerts > 0 && (
+              <span
+                className={`dash-alert-count ${
+                  alerts.hasExceeded
+                    ? "dash-alert-count-danger"
+                    : "dash-alert-count-warning"
+                }`}
+              >
+                {alerts.totalAlerts} ví cần chú ý
+              </span>
+            )}
+          </div>
+
+          {alerts.totalAlerts === 0 ? (
+            <div className="dash-alert-safe">
+              <span className="dash-alert-safe-icon">✅</span>
+              <p>
+                Ngân sách của bạn đang được kiểm soát tốt.
+              </p>
+            </div>
+          ) : (
+            <div className="dash-alert-list">
+              {alerts.wallets
+                .filter((a) => a.status !== "NORMAL")
+                .map((alert) => (
+                  <WalletAlertCard
+                    key={alert.walletType}
+                    alert={alert}
+                    compact
+                  />
+                ))}
+            </div>
+          )}
+
+          {alerts.totalAlerts > 0 && (
+            <button
+              className="dash-btn-secondary dash-alert-view-all"
+              onClick={() => navigate("/wallet-alerts")}
+            >
+              Xem tất cả cảnh báo →
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="dash-section">
         <div className="dash-section-header">
