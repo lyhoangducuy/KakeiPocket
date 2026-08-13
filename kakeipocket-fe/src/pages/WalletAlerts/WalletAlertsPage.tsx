@@ -5,6 +5,11 @@ import { getWalletAlerts } from "../../api/walletAlertApi";
 
 import WalletAlertCard from "../../components/WalletAlertCard";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoWalletAlerts } from "../../demo/walletAlertDemo";
+
 import type { WalletAlertSummary } from "../../types/walletAlert";
 
 import "./WalletAlertsPage.css";
@@ -25,6 +30,8 @@ const getCurrentMonth = () => {
 
 export default function WalletAlertsPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
   const now = getCurrentMonth();
 
   const [year, setYear] = useState<number>(now.year);
@@ -41,6 +48,17 @@ export default function WalletAlertsPage() {
   ) => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      const demo: WalletAlertSummary = {
+        ...demoWalletAlerts,
+        year: targetYear,
+        month: targetMonth,
+      };
+      setData(demo);
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await getWalletAlerts(targetYear, targetMonth);
@@ -60,7 +78,7 @@ export default function WalletAlertsPage() {
 
   useEffect(() => {
     load(year, month);
-  }, [year, month]);
+  }, [year, month, isGuest]);
 
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -129,7 +147,12 @@ export default function WalletAlertsPage() {
     <div className="wa-page">
       <div className="wa-header">
         <div>
-          <h1 className="wa-title">Cảnh báo ngân sách</h1>
+          <h1 className="wa-title">
+            Cảnh báo ngân sách
+            {isGuest && (
+              <span className="wa-demo-badge">DEMO</span>
+            )}
+          </h1>
           <p className="wa-subtitle">
             Theo dõi mức sử dụng 4 ví trong tháng.
           </p>
@@ -227,7 +250,13 @@ export default function WalletAlertsPage() {
           <p>Bạn chưa thiết lập ngân sách cho tháng này.</p>
           <button
             className="wa-btn-primary"
-            onClick={() => navigate("/wallet-configuration")}
+            onClick={() => {
+              if (isGuest) {
+                requireAuth("Đăng nhập để thiết lập ngân sách.");
+                return;
+              }
+              navigate("/wallet-configuration");
+            }}
           >
             Thiết lập ngân sách
           </button>

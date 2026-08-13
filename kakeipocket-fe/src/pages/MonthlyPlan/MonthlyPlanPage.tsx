@@ -10,6 +10,11 @@ import {
   updateMonthlyPlan,
 } from "../../api/monthlyPlanApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoMonthlyPlan } from "../../demo/monthlyPlanDemo";
+
 import type {
   MonthlyPlan,
   CreateMonthlyPlanRequest,
@@ -59,6 +64,9 @@ const parseCurrency = (value: string): number => {
 };
 
 export default function MonthlyPlanPage() {
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -82,6 +90,17 @@ export default function MonthlyPlanPage() {
   const loadCurrentPlan = async () => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      setPlan(demoMonthlyPlan);
+      setMonth(demoMonthlyPlan.month);
+      setYear(demoMonthlyPlan.year);
+      setIncomeTarget(formatCurrency(demoMonthlyPlan.incomeTarget));
+      setSavingTarget(formatCurrency(demoMonthlyPlan.savingTarget));
+      setNote(demoMonthlyPlan.note || "");
+      setLoading(false);
+      return;
+    }
 
     try {
       const currentPlan = await getCurrentMonthlyPlan();
@@ -144,6 +163,11 @@ export default function MonthlyPlanPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để lưu kế hoạch tháng của bạn.");
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -235,7 +259,12 @@ export default function MonthlyPlanPage() {
   return (
     <div className="mp-page">
       <div className="mp-header">
-        <h1 className="mp-title">Kế hoạch tháng</h1>
+        <h1 className="mp-title">
+          Kế hoạch tháng
+          {isGuest && (
+            <span className="mp-demo-badge">DEMO</span>
+          )}
+        </h1>
 
         <p className="mp-subtitle">
           Thiết lập thu nhập và mục tiêu tiết kiệm cho tháng của bạn.
@@ -439,11 +468,13 @@ export default function MonthlyPlanPage() {
           className="mp-button"
           disabled={submitting}
         >
-          {submitting
-            ? "Đang lưu..."
-            : plan
-              ? "Cập nhật kế hoạch"
-              : "Lưu kế hoạch"}
+          {isGuest
+            ? "Đăng nhập để lưu kế hoạch"
+            : submitting
+              ? "Đang lưu..."
+              : plan
+                ? "Cập nhật kế hoạch"
+                : "Lưu kế hoạch"}
         </button>
       </form>
     </div>

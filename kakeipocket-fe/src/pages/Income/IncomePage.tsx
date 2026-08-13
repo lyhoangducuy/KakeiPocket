@@ -12,6 +12,12 @@ import {
   deleteTransaction,
 } from "../../api/transactionApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoCategories } from "../../demo/categoryDemo";
+import { demoTransactions } from "../../demo/transactionDemo";
+
 import type { Category } from "../../types/category";
 import type {
   CreateIncomeRequest,
@@ -82,6 +88,9 @@ const initialFormData: FormData = {
 };
 
 export default function IncomePage() {
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -109,11 +118,26 @@ export default function IncomePage() {
 
   useEffect(() => {
     loadTransactions();
-  }, [filterFrom, filterTo]);
+  }, [filterFrom, filterTo, isGuest]);
 
   const loadInitialData = async () => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      const cats = demoCategories.filter(
+        (c) => c.type === "INCOME"
+      );
+      setCategories(cats);
+      if (cats.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          categoryId: String(cats[0].id),
+        }));
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
       const cats = await getCategories("INCOME");
@@ -140,6 +164,24 @@ export default function IncomePage() {
   };
 
   const loadTransactions = async () => {
+    if (isGuest) {
+      const filtered = demoTransactions
+        .filter((t) => t.type === "INCOME")
+        .filter((t) => {
+          if (filterFrom && t.transactionDate < filterFrom)
+            return false;
+          if (filterTo && t.transactionDate > filterTo)
+            return false;
+          return true;
+        })
+        .sort((a, b) =>
+          b.transactionDate.localeCompare(a.transactionDate)
+        );
+      setTransactions(filtered);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getIncomes(filterFrom, filterTo);
       setTransactions(data);
@@ -164,6 +206,11 @@ export default function IncomePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để thêm khoản thu.");
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -234,6 +281,10 @@ export default function IncomePage() {
   };
 
   const handleEdit = (transaction: ExpenseTransaction) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để sửa khoản thu.");
+      return;
+    }
     setEditingId(transaction.id);
     setFormData({
       categoryId: String(transaction.categoryId),
@@ -254,6 +305,11 @@ export default function IncomePage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để xóa khoản thu.");
+      return;
+    }
 
     setDeleting(deleteTarget.id);
     setError("");
@@ -292,7 +348,12 @@ export default function IncomePage() {
   return (
     <div className="inc-page">
       <div className="inc-header">
-        <h1 className="inc-title">Thu nhập</h1>
+        <h1 className="inc-title">
+          Thu nhập
+          {isGuest && (
+            <span className="inc-demo-badge">DEMO</span>
+          )}
+        </h1>
         <p className="inc-subtitle">
           Quản lý các khoản thu nhập của bạn.
         </p>
@@ -320,6 +381,7 @@ export default function IncomePage() {
                   categoryId: e.target.value,
                 })
               }
+              disabled={isGuest}
             >
               <option value="">-- Chọn danh mục --</option>
               {categories.map((cat) => (
@@ -340,6 +402,7 @@ export default function IncomePage() {
                   placeholder="0"
                   value={formData.amount}
                   onChange={handleAmountChange}
+                  disabled={isGuest}
                 />
                 <span className="inc-input-suffix">₫</span>
               </div>
@@ -357,6 +420,7 @@ export default function IncomePage() {
                     transactionDate: e.target.value,
                   })
                 }
+                disabled={isGuest}
               />
             </div>
           </div>
@@ -371,6 +435,7 @@ export default function IncomePage() {
               onChange={(e) =>
                 setFormData({ ...formData, note: e.target.value })
               }
+              disabled={isGuest}
             />
           </div>
 
@@ -389,11 +454,13 @@ export default function IncomePage() {
               className="inc-btn-primary"
               disabled={submitting}
             >
-              {submitting
-                ? "Đang lưu..."
-                : editingId
-                  ? "Cập nhật"
-                  : "Lưu khoản thu"}
+              {isGuest
+                ? "Đăng nhập để lưu"
+                : submitting
+                  ? "Đang lưu..."
+                  : editingId
+                    ? "Cập nhật"
+                    : "Lưu khoản thu"}
             </button>
           </div>
         </form>

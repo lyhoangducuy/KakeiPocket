@@ -5,6 +5,7 @@ import {
 
 import {
   Link,
+  useLocation,
   useNavigate,
 } from "react-router-dom";
 
@@ -12,6 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     login,
@@ -43,10 +45,21 @@ export default function LoginPage() {
         password,
       });
 
-      // Lấy role sau login
-      // AuthContext đã cập nhật user
-      // Chuyển về home
-      navigate("/");
+      const state = location.state as
+        | { from?: string }
+        | null;
+      const from = state?.from;
+
+      if (
+        from &&
+        from !== "/login" &&
+        from !== "/register" &&
+        from !== "/"
+      ) {
+        navigate(from, { replace: true });
+      } else {
+        navigate("/dashboard", { replace: true });
+      }
     } catch (error: any) {
       setError(
         error?.response?.data?.message ||

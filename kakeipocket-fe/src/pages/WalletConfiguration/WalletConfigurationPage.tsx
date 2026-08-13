@@ -12,6 +12,12 @@ import {
   saveWalletLimits,
 } from "../../api/walletApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoMonthlyPlan } from "../../demo/monthlyPlanDemo";
+import { demoWalletLimits } from "../../demo/walletLimitsDemo";
+
 import type { MonthlyPlan } from "../../types/monthlyPlan";
 import type { WalletLimitsRequest } from "../../types/walletLimit";
 import {
@@ -38,6 +44,8 @@ const parseCurrency = (value: string): number => {
 
 export default function WalletConfigurationPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -59,6 +67,16 @@ export default function WalletConfigurationPage() {
   const loadData = async () => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      setPlan(demoMonthlyPlan);
+      setNecessary(formatCurrency(demoWalletLimits.necessary));
+      setWants(formatCurrency(demoWalletLimits.wants));
+      setCulture(formatCurrency(demoWalletLimits.culture));
+      setUnexpected(formatCurrency(demoWalletLimits.unexpected));
+      setLoading(false);
+      return;
+    }
 
     try {
       const currentPlan = await getCurrentMonthlyPlan();
@@ -114,6 +132,11 @@ export default function WalletConfigurationPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để lưu hạn mức 4 ví.");
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -198,7 +221,12 @@ export default function WalletConfigurationPage() {
   return (
     <div className="wc-page">
       <div className="wc-header">
-        <h1 className="wc-title">Cấu hình 4 ví</h1>
+        <h1 className="wc-title">
+          Cấu hình 4 ví
+          {isGuest && (
+            <span className="wc-demo-badge">DEMO</span>
+          )}
+        </h1>
 
         <p className="wc-subtitle">
           Thiết lập hạn mức chi tiêu cho từng nhóm ví trong tháng.
@@ -227,7 +255,13 @@ export default function WalletConfigurationPage() {
           <p>Bạn chưa có kế hoạch tháng.</p>
           <button
             className="wc-button-secondary"
-            onClick={() => navigate("/monthly-plan")}
+            onClick={() => {
+              if (isGuest) {
+                requireAuth("Đăng nhập để tạo kế hoạch tháng.");
+                return;
+              }
+              navigate("/monthly-plan");
+            }}
           >
             Tạo kế hoạch tháng
           </button>
@@ -355,7 +389,11 @@ export default function WalletConfigurationPage() {
             className="wc-button"
             disabled={submitting}
           >
-            {submitting ? "Đang lưu..." : "Lưu hạn mức"}
+            {isGuest
+              ? "Đăng nhập để lưu hạn mức"
+              : submitting
+                ? "Đang lưu..."
+                : "Lưu hạn mức"}
           </button>
         </form>
       )}

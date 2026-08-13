@@ -2,6 +2,11 @@ import { useState, useEffect } from "react";
 
 import { analyzeFinancial } from "../../api/aiFinancialApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoAiAnalysis } from "../../demo/aiFinancialDemo";
+
 import type {
   AiFinancialAnalysis,
   FinancialHealth,
@@ -53,6 +58,8 @@ const getHealthInfo = (health: FinancialHealth) => {
 };
 
 export default function AiFinancialPage() {
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
   const now = getCurrentMonth();
   const [year, setYear] = useState<number>(now.year);
   const [month, setMonth] = useState<number>(now.month);
@@ -70,6 +77,23 @@ export default function AiFinancialPage() {
   ) => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      const demo: AiFinancialAnalysis = {
+        ...demoAiAnalysis,
+        year: targetYear,
+        month: targetMonth,
+      };
+      if (q && q.trim()) {
+        demo.generatedForQuestion = true;
+        demo.question = q.trim();
+        demo.summary =
+          "Đăng nhập để Kakeibo AI phân tích dữ liệu tài chính của bạn. Đây là phân tích mẫu dựa trên dữ liệu demo.";
+      }
+      setData(demo);
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await analyzeFinancial({
@@ -95,7 +119,7 @@ export default function AiFinancialPage() {
 
   useEffect(() => {
     loadAnalysis(year, month);
-  }, [year, month]);
+  }, [year, month, isGuest]);
 
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -128,6 +152,14 @@ export default function AiFinancialPage() {
       setError("Vui lòng nhập câu hỏi.");
       return;
     }
+
+    if (isGuest) {
+      requireAuth(
+        "Đăng nhập để Kakeibo AI phân tích dữ liệu tài chính của bạn."
+      );
+      return;
+    }
+
     setQuestionMode(true);
     await loadAnalysis(year, month, question.trim());
   };
@@ -150,6 +182,9 @@ export default function AiFinancialPage() {
         <div>
           <h1 className="ai-title">
             <span className="ai-title-icon">🤖</span> Kakeibo AI
+            {isGuest && (
+              <span className="ai-demo-badge">DEMO</span>
+            )}
           </h1>
           <p className="ai-subtitle">
             Phân tích tài chính và gợi ý cải thiện dựa trên dữ liệu
@@ -210,6 +245,21 @@ export default function AiFinancialPage() {
         tiêu của bạn, không phải tư vấn đầu tư hoặc tài chính chuyên
         nghiệp.
       </p>
+
+      {isGuest && (
+        <div className="ai-guest-notice">
+          <span className="ai-guest-icon" aria-hidden="true">
+            🔒
+          </span>
+          <div>
+            <strong>Đăng nhập để nhận phân tích dựa trên dữ liệu của bạn.</strong>{" "}
+            <span>
+              Kakeibo AI sẽ sử dụng dữ liệu thu chi và kế hoạch tháng cá
+              nhân của bạn.
+            </span>
+          </div>
+        </div>
+      )}
 
       {error && !data && (
         <div className="ai-error-state">
@@ -369,7 +419,11 @@ export default function AiFinancialPage() {
           onClick={handleAskQuestion}
           disabled={loading || !question.trim()}
         >
-          {loading ? "AI đang phân tích..." : "Phân tích"}
+          {isGuest
+            ? "Đăng nhập để hỏi AI"
+            : loading
+              ? "AI đang phân tích..."
+              : "Phân tích"}
         </button>
       </div>
     </div>

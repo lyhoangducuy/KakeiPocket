@@ -12,6 +12,12 @@ import {
   deleteTransaction,
 } from "../../api/transactionApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoCategories } from "../../demo/categoryDemo";
+import { demoTransactions } from "../../demo/transactionDemo";
+
 import type { Category } from "../../types/category";
 import type {
   CreateExpenseRequest,
@@ -86,6 +92,9 @@ const initialFormData: FormData = {
 };
 
 export default function ExpensePage() {
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
@@ -113,11 +122,26 @@ export default function ExpensePage() {
 
   useEffect(() => {
     loadTransactions();
-  }, [filterFrom, filterTo]);
+  }, [filterFrom, filterTo, isGuest]);
 
   const loadInitialData = async () => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      const cats = demoCategories.filter(
+        (c) => c.type === "EXPENSE"
+      );
+      setCategories(cats);
+      if (cats.length > 0) {
+        setFormData((prev) => ({
+          ...prev,
+          categoryId: String(cats[0].id),
+        }));
+      }
+      setLoading(false);
+      return;
+    }
 
     try {
       const cats = await getCategories("EXPENSE");
@@ -144,6 +168,24 @@ export default function ExpensePage() {
   };
 
   const loadTransactions = async () => {
+    if (isGuest) {
+      const filtered = demoTransactions
+        .filter((t) => t.type === "EXPENSE")
+        .filter((t) => {
+          if (filterFrom && t.transactionDate < filterFrom)
+            return false;
+          if (filterTo && t.transactionDate > filterTo)
+            return false;
+          return true;
+        })
+        .sort((a, b) =>
+          b.transactionDate.localeCompare(a.transactionDate)
+        );
+      setTransactions(filtered);
+      setLoading(false);
+      return;
+    }
+
     try {
       const data = await getExpenses(filterFrom, filterTo);
       setTransactions(data);
@@ -168,6 +210,11 @@ export default function ExpensePage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để thêm khoản chi.");
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -239,6 +286,10 @@ export default function ExpensePage() {
   };
 
   const handleEdit = (transaction: ExpenseTransaction) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để sửa khoản chi.");
+      return;
+    }
     setEditingId(transaction.id);
     setFormData({
       categoryId: String(transaction.categoryId),
@@ -261,6 +312,11 @@ export default function ExpensePage() {
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để xóa khoản chi.");
+      return;
+    }
 
     setDeleting(deleteTarget.id);
     setError("");
@@ -319,7 +375,12 @@ export default function ExpensePage() {
   return (
     <div className="exp-page">
       <div className="exp-header">
-        <h1 className="exp-title">Chi tiêu</h1>
+        <h1 className="exp-title">
+          Chi tiêu
+          {isGuest && (
+            <span className="exp-demo-badge">DEMO</span>
+          )}
+        </h1>
         <p className="exp-subtitle">
           Ghi lại và quản lý các khoản chi tiêu của bạn.
         </p>
@@ -348,6 +409,7 @@ export default function ExpensePage() {
                     categoryId: e.target.value,
                   })
                 }
+                disabled={isGuest}
               >
                 <option value="">-- Chọn danh mục --</option>
                 {categories.map((cat) => (
@@ -369,6 +431,7 @@ export default function ExpensePage() {
                     walletType: e.target.value as WalletType,
                   })
                 }
+                disabled={isGuest}
               >
                 {WALLET_OPTIONS.map((w) => (
                   <option key={w.value} value={w.value}>
@@ -389,6 +452,7 @@ export default function ExpensePage() {
                   placeholder="0"
                   value={formData.amount}
                   onChange={handleAmountChange}
+                  disabled={isGuest}
                 />
                 <span className="exp-input-suffix">₫</span>
               </div>
@@ -406,6 +470,7 @@ export default function ExpensePage() {
                     transactionDate: e.target.value,
                   })
                 }
+                disabled={isGuest}
               />
             </div>
           </div>
@@ -420,6 +485,7 @@ export default function ExpensePage() {
               onChange={(e) =>
                 setFormData({ ...formData, note: e.target.value })
               }
+              disabled={isGuest}
             />
           </div>
 
@@ -438,11 +504,13 @@ export default function ExpensePage() {
               className="exp-btn-primary"
               disabled={submitting}
             >
-              {submitting
-                ? "Đang lưu..."
-                : editingId
-                  ? "Cập nhật"
-                  : "Lưu khoản chi"}
+              {isGuest
+                ? "Đăng nhập để lưu"
+                : submitting
+                  ? "Đang lưu..."
+                  : editingId
+                    ? "Cập nhật"
+                    : "Lưu khoản chi"}
             </button>
           </div>
         </form>

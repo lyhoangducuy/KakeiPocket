@@ -11,71 +11,43 @@ import {
   deleteCategory,
 } from "../../api/categoryApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoCategories } from "../../demo/categoryDemo";
+
 import type {
   Category,
+  CategoryType,
   CreateCategoryRequest,
   UpdateCategoryRequest,
-  CategoryType,
-  FilterType,
 } from "../../types/category";
 
 import "./CategoryPage.css";
 
-const CATEGORY_ICONS: Record<string, string> = {
-  FOOD: "🍜",
-  TRANSPORT: "🚗",
-  HOME: "🏠",
-  SHOPPING: "🛒",
-  ENTERTAINMENT: "🎮",
-  HEALTH: "💊",
-  EDUCATION: "📚",
-  SALARY: "💰",
-  BONUS: "🎁",
-  FREELANCE: "💻",
-  INVESTMENT: "📈",
-  OTHER: "📦",
-};
-
-const getIconForCategory = (name: string, type: CategoryType): string => {
-  const lowerName = name.toLowerCase();
-
-  if (type === "EXPENSE") {
-    if (lowerName.includes("ăn") || lowerName.includes("uống")) return CATEGORY_ICONS.FOOD;
-    if (lowerName.includes("đi") || lowerName.includes("lại") || lowerName.includes("xe")) return CATEGORY_ICONS.TRANSPORT;
-    if (lowerName.includes("nhà") || lowerName.includes("ở")) return CATEGORY_ICONS.HOME;
-    if (lowerName.includes("mua") || lowerName.includes("sắm")) return CATEGORY_ICONS.SHOPPING;
-    if (lowerName.includes("giải") || lowerName.includes("trí")) return CATEGORY_ICONS.ENTERTAINMENT;
-    if (lowerName.includes("y tế") || lowerName.includes("thuốc")) return CATEGORY_ICONS.HEALTH;
-    if (lowerName.includes("học") || lowerName.includes("tập")) return CATEGORY_ICONS.EDUCATION;
-  } else {
-    if (lowerName.includes("lương")) return CATEGORY_ICONS.SALARY;
-    if (lowerName.includes("thưởng")) return CATEGORY_ICONS.BONUS;
-    if (lowerName.includes("freelance")) return CATEGORY_ICONS.FREELANCE;
-    if (lowerName.includes("đầu tư")) return CATEGORY_ICONS.INVESTMENT;
-  }
-
-  return CATEGORY_ICONS.OTHER;
-};
+type FilterType = "ALL" | CategoryType;
 
 export default function CategoryPage() {
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [filter, setFilter] = useState<FilterType>("ALL");
-
-  const [showModal, setShowModal] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<Category | null>(null);
+  const [filterType, setFilterType] = useState<FilterType>("ALL");
 
   const [formData, setFormData] = useState<CreateCategoryRequest>({
     name: "",
     type: "EXPENSE",
-    icon: "",
-    color: "",
+    icon: "📦",
+    color: "#3b82f6",
   });
+  const [editingId, setEditingId] = useState<number | null>(null);
+
+  const [deleteTarget, setDeleteTarget] =
+    useState<Category | null>(null);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -84,17 +56,18 @@ export default function CategoryPage() {
     loadCategories();
   }, []);
 
-  useEffect(() => {
-    loadCategories();
-  }, [filter]);
-
   const loadCategories = async () => {
     setLoading(true);
     setError("");
 
+    if (isGuest) {
+      setCategories(demoCategories);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const type = filter === "ALL" ? undefined : filter;
-      const data = await getCategories(type);
+      const data = await getCategories();
       setCategories(data);
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -109,77 +82,49 @@ export default function CategoryPage() {
     }
   };
 
-  const openCreateModal = () => {
-    setEditingCategory(null);
-    setFormData({
-      name: "",
-      type: "EXPENSE",
-      icon: "",
-      color: "",
-    });
-    setError("");
-    setShowModal(true);
-  };
-
-  const openEditModal = (category: Category) => {
-    setEditingCategory(category);
-    setFormData({
-      name: category.name,
-      type: category.type,
-      icon: category.icon || "",
-      color: category.color || "",
-    });
-    setError("");
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setEditingCategory(null);
-    setFormData({
-      name: "",
-      type: "EXPENSE",
-      icon: "",
-      color: "",
-    });
-    setError("");
-  };
-
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để quản lý danh mục.");
+      return;
+    }
+
+    setError("");
+    setSuccess("");
 
     if (!formData.name.trim()) {
       setError("Tên danh mục không được để trống.");
       return;
     }
 
+    if (formData.name.trim().length > 50) {
+      setError("Tên danh mục tối đa 50 ký tự.");
+      return;
+    }
+
     setSubmitting(true);
-    setError("");
-    setSuccess("");
 
     try {
-      if (editingCategory) {
-        const data: UpdateCategoryRequest = {
-          name: formData.name.trim(),
-          type: formData.type,
-          icon: formData.icon || undefined,
-          color: formData.color || undefined,
-        };
-        await updateCategory(editingCategory.id, data);
+      const payload: CreateCategoryRequest = {
+        name: formData.name.trim(),
+        type: formData.type,
+        icon: (formData.icon ?? "").trim() || "📦",
+        color: formData.color ?? "#3b82f6",
+      };
+
+      if (editingId) {
+        const data: UpdateCategoryRequest = payload;
+        await updateCategory(editingId, data);
         setSuccess("Cập nhật danh mục thành công!");
       } else {
-        const data: CreateCategoryRequest = {
-          name: formData.name.trim(),
-          type: formData.type,
-          icon: formData.icon || undefined,
-          color: formData.color || undefined,
-        };
+        const data: CreateCategoryRequest = payload;
         await createCategory(data);
         setSuccess("Tạo danh mục thành công!");
       }
 
-      closeModal();
-      loadCategories();
+      resetForm();
+      await loadCategories();
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Phiên đăng nhập đã hết hạn.");
@@ -193,16 +138,55 @@ export default function CategoryPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({
+      name: "",
+      type: "EXPENSE",
+      icon: "📦",
+      color: "#3b82f6",
+    });
+  };
 
-    setDeleting(showDeleteConfirm.id);
+  const handleEdit = (category: Category) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để sửa danh mục.");
+      return;
+    }
+    setEditingId(category.id);
+    setFormData({
+      name: category.name,
+      type: category.type,
+      icon: category.icon ?? "",
+      color: category.color ?? "#3b82f6",
+    });
+    setError("");
+    setSuccess("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    resetForm();
+    setError("");
+    setSuccess("");
+  };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    if (isGuest) {
+      requireAuth("Đăng nhập để xóa danh mục.");
+      return;
+    }
+
+    setDeleting(deleteTarget.id);
     setError("");
 
     try {
-      await deleteCategory(showDeleteConfirm.id);
-      setShowDeleteConfirm(null);
-      loadCategories();
+      await deleteCategory(deleteTarget.id);
+      setDeleteTarget(null);
+      setSuccess("Xóa danh mục thành công!");
+      await loadCategories();
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Phiên đăng nhập đã hết hạn.");
@@ -216,14 +200,17 @@ export default function CategoryPage() {
     }
   };
 
-  const getTypeLabel = (type: CategoryType): string => {
-    return type === "EXPENSE" ? "Chi tiêu" : "Thu nhập";
-  };
+  const filteredCategories =
+    filterType === "ALL"
+      ? categories
+      : categories.filter((c) => c.type === filterType);
 
-  const getCategoryIcon = (category: Category): string => {
-    if (category.icon) return category.icon;
-    return getIconForCategory(category.name, category.type);
-  };
+  const expenseCategories = categories.filter(
+    (c) => c.type === "EXPENSE"
+  );
+  const incomeCategories = categories.filter(
+    (c) => c.type === "INCOME"
+  );
 
   if (loading) {
     return (
@@ -236,93 +223,175 @@ export default function CategoryPage() {
   return (
     <div className="cat-page">
       <div className="cat-header">
-        <div>
-          <h1 className="cat-title">Quản lý danh mục</h1>
-          <p className="cat-subtitle">
-            Tạo và quản lý các danh mục thu nhập, chi tiêu của bạn.
-          </p>
-        </div>
-
-        <button
-          className="cat-btn-primary"
-          onClick={openCreateModal}
-        >
-          + Thêm danh mục
-        </button>
+        <h1 className="cat-title">
+          Quản lý danh mục
+          {isGuest && (
+            <span className="cat-demo-badge">DEMO</span>
+          )}
+        </h1>
+        <p className="cat-subtitle">
+          Tạo và quản lý danh mục thu chi của bạn.
+        </p>
       </div>
 
       {error && <div className="cat-error">{error}</div>}
-      {success && <div className="cat-success">{success}</div>}
+      {success && (
+        <div className="cat-success">{success}</div>
+      )}
 
-      <div className="cat-filters">
+      <div className="cat-form-card">
+        <h2 className="cat-form-title">
+          {editingId ? "Sửa danh mục" : "Thêm danh mục mới"}
+        </h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="cat-row">
+            <div className="cat-field">
+              <label className="cat-label">Tên danh mục</label>
+              <input
+                type="text"
+                className="cat-input"
+                placeholder="Ví dụ: Ăn uống"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
+                disabled={isGuest}
+              />
+            </div>
+
+            <div className="cat-field">
+              <label className="cat-label">Loại</label>
+              <select
+                className="cat-select"
+                value={formData.type}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    type: e.target.value as CategoryType,
+                  })
+                }
+                disabled={isGuest}
+              >
+                <option value="EXPENSE">Chi tiêu</option>
+                <option value="INCOME">Thu nhập</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="cat-row">
+            <div className="cat-field">
+              <label className="cat-label">Biểu tượng (emoji)</label>
+              <input
+                type="text"
+                className="cat-input cat-input-icon"
+                placeholder="🍜"
+                value={formData.icon}
+                onChange={(e) =>
+                  setFormData({ ...formData, icon: e.target.value })
+                }
+                maxLength={4}
+                disabled={isGuest}
+              />
+            </div>
+
+            <div className="cat-field">
+              <label className="cat-label">Màu sắc</label>
+              <input
+                type="color"
+                className="cat-input-color"
+                value={formData.color}
+                onChange={(e) =>
+                  setFormData({ ...formData, color: e.target.value })
+                }
+                disabled={isGuest}
+              />
+            </div>
+          </div>
+
+          <div className="cat-form-actions">
+            {editingId && (
+              <button
+                type="button"
+                className="cat-btn-secondary"
+                onClick={handleCancelEdit}
+              >
+                Hủy
+              </button>
+            )}
+            <button
+              type="submit"
+              className="cat-btn-primary"
+              disabled={submitting}
+            >
+              {isGuest
+                ? "Đăng nhập để lưu"
+                : submitting
+                  ? "Đang lưu..."
+                  : editingId
+                    ? "Cập nhật"
+                    : "Tạo danh mục"}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div className="cat-filter-bar">
         <button
-          className={`cat-filter-btn ${filter === "ALL" ? "active" : ""}`}
-          onClick={() => setFilter("ALL")}
+          className={`cat-filter-btn ${filterType === "ALL" ? "active" : ""}`}
+          onClick={() => setFilterType("ALL")}
         >
-          Tất cả
+          Tất cả ({categories.length})
         </button>
         <button
-          className={`cat-filter-btn ${filter === "EXPENSE" ? "active" : ""}`}
-          onClick={() => setFilter("EXPENSE")}
+          className={`cat-filter-btn ${filterType === "EXPENSE" ? "active" : ""}`}
+          onClick={() => setFilterType("EXPENSE")}
         >
-          Chi tiêu
+          Chi tiêu ({expenseCategories.length})
         </button>
         <button
-          className={`cat-filter-btn ${filter === "INCOME" ? "active" : ""}`}
-          onClick={() => setFilter("INCOME")}
+          className={`cat-filter-btn ${filterType === "INCOME" ? "active" : ""}`}
+          onClick={() => setFilterType("INCOME")}
         >
-          Thu nhập
+          Thu nhập ({incomeCategories.length})
         </button>
       </div>
 
-      {categories.length === 0 ? (
+      {filteredCategories.length === 0 ? (
         <div className="cat-empty">
-          <p>Bạn chưa có danh mục nào.</p>
-          <button
-            className="cat-btn-secondary"
-            onClick={openCreateModal}
-          >
-            + Thêm danh mục
-          </button>
+          <p>Chưa có danh mục nào.</p>
+          <p className="cat-empty-hint">
+            Hãy tạo danh mục đầu tiên ở form phía trên.
+          </p>
         </div>
       ) : (
         <div className="cat-grid">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="cat-card"
-            >
-              <div className="cat-card-left">
-                <span className="cat-card-icon">
-                  {getCategoryIcon(category)}
+          {filteredCategories.map((cat) => (
+            <div key={cat.id} className="cat-card">
+              <div
+                className="cat-card-color-bar"
+                style={{ backgroundColor: cat.color ?? "#3b82f6" }}
+              />
+              <div className="cat-card-icon">{cat.icon ?? "📦"}</div>
+              <div className="cat-card-info">
+                <h3 className="cat-card-name">{cat.name}</h3>
+                <span
+                  className={`cat-card-type cat-type-${cat.type.toLowerCase()}`}
+                >
+                  {cat.type === "EXPENSE" ? "Chi tiêu" : "Thu nhập"}
                 </span>
-                <div className="cat-card-info">
-                  <h3 className="cat-card-name">
-                    {category.name}
-                  </h3>
-                  <span
-                    className={`cat-card-type ${
-                      category.type === "EXPENSE"
-                        ? "cat-type-expense"
-                        : "cat-type-income"
-                    }`}
-                  >
-                    {getTypeLabel(category.type)}
-                  </span>
-                </div>
               </div>
-
               <div className="cat-card-actions">
                 <button
                   className="cat-btn-icon"
-                  onClick={() => openEditModal(category)}
+                  onClick={() => handleEdit(cat)}
                   title="Sửa"
                 >
                   ✏️
                 </button>
                 <button
                   className="cat-btn-icon"
-                  onClick={() => setShowDeleteConfirm(category)}
+                  onClick={() => setDeleteTarget(cat)}
                   title="Xóa"
                 >
                   🗑️
@@ -333,97 +402,24 @@ export default function CategoryPage() {
         </div>
       )}
 
-      {showModal && (
+      {deleteTarget && (
         <div className="cat-modal-overlay">
           <div className="cat-modal">
-            <h2 className="cat-modal-title">
-              {editingCategory ? "Sửa danh mục" : "Thêm danh mục"}
-            </h2>
-
-            <form onSubmit={handleSubmit}>
-              <div className="cat-form-group">
-                <label className="cat-label">
-                  Tên danh mục
-                </label>
-                <input
-                  type="text"
-                  className="cat-input"
-                  placeholder="Ví dụ: Ăn uống"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  maxLength={100}
-                  autoFocus
-                />
-              </div>
-
-              <div className="cat-form-group">
-                <label className="cat-label">
-                  Loại danh mục
-                </label>
-                <select
-                  className="cat-select"
-                  value={formData.type}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      type: e.target.value as CategoryType,
-                    })
-                  }
-                >
-                  <option value="EXPENSE">Chi tiêu</option>
-                  <option value="INCOME">Thu nhập</option>
-                </select>
-              </div>
-
-              {error && <div className="cat-error">{error}</div>}
-
-              <div className="cat-modal-actions">
-                <button
-                  type="button"
-                  className="cat-btn-secondary"
-                  onClick={closeModal}
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="cat-btn-primary"
-                  disabled={submitting}
-                >
-                  {submitting ? "Đang lưu..." : editingCategory ? "Cập nhật" : "Lưu"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showDeleteConfirm && (
-        <div className="cat-modal-overlay">
-          <div className="cat-modal cat-modal-confirm">
             <h2 className="cat-modal-title">Xác nhận xóa</h2>
-            <p className="cat-confirm-text">
-              Bạn có chắc muốn xóa danh mục "
-              {showDeleteConfirm.name}"?
+            <p className="cat-modal-text">
+              Bạn có chắc muốn xóa danh mục "{deleteTarget.name}"?
             </p>
-
-            {error && <div className="cat-error">{error}</div>}
-
+            <p className="cat-modal-warning">
+              Các giao dịch thuộc danh mục này có thể bị ảnh hưởng.
+            </p>
             <div className="cat-modal-actions">
               <button
-                type="button"
                 className="cat-btn-secondary"
-                onClick={() => {
-                  setShowDeleteConfirm(null);
-                  setError("");
-                }}
+                onClick={() => setDeleteTarget(null)}
               >
                 Hủy
               </button>
               <button
-                type="button"
                 className="cat-btn-danger"
                 onClick={handleDelete}
                 disabled={deleting !== null}

@@ -18,6 +18,11 @@ import { useNavigate } from "react-router-dom";
 
 import { getStatistics } from "../../api/statisticsApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoStatistics } from "../../demo/statisticsDemo";
+
 import type { StatisticsResponse } from "../../types/statistics";
 import { WALLET_OPTIONS } from "../../types/transaction";
 import type { WalletType } from "../../types/transaction";
@@ -93,6 +98,8 @@ type FilterMode = "MONTH" | "CUSTOM";
 
 export default function StatisticsPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
   const now = getCurrentMonth();
 
   const [filterMode, setFilterMode] =
@@ -124,6 +131,12 @@ export default function StatisticsPage() {
     setLoading(true);
     setError("");
 
+    if (isGuest) {
+      setData(demoStatistics);
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await getStatistics(payload);
       setData(result);
@@ -142,7 +155,7 @@ export default function StatisticsPage() {
 
   useEffect(() => {
     loadStats("MONTH", { year, month });
-  }, [year, month]);
+  }, [year, month, isGuest]);
 
   const handleApplyCustom = () => {
     if (!fromDate || !toDate) {
@@ -188,6 +201,10 @@ export default function StatisticsPage() {
   };
 
   const handleQuickRange = (months: number) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để xem thống kê tùy chỉnh.");
+      return;
+    }
     const end = new Date();
     const start = new Date();
     start.setMonth(start.getMonth() - months + 1);
@@ -209,6 +226,10 @@ export default function StatisticsPage() {
   };
 
   const handleViewTransactions = (categoryId: number) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để xem giao dịch.");
+      return;
+    }
     navigate(`/transactions?type=EXPENSE&categoryId=${categoryId}`);
   };
 
@@ -248,7 +269,12 @@ export default function StatisticsPage() {
     <div className="stat-page">
       <div className="stat-header">
         <div>
-          <h1 className="stat-title">Thống kê</h1>
+          <h1 className="stat-title">
+            Thống kê
+            {isGuest && (
+              <span className="stat-demo-badge">DEMO</span>
+            )}
+          </h1>
           <p className="stat-subtitle">
             Phân tích tình hình tài chính của bạn.
           </p>
@@ -581,7 +607,7 @@ export default function StatisticsPage() {
                     <Cell
                       key={idx}
                       fill={
-                        WALLET_COLORS[w.walletType] || "#2563eb"
+                        WALLET_COLORS[w.walletType] || "#dc2626"
                       }
                     />
                   ))}

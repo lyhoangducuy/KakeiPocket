@@ -6,6 +6,12 @@ import { getMonthlySummary } from "../../api/monthlySummaryApi";
 import WalletAlertCard from "../../components/WalletAlertCard";
 import { getWalletAlerts } from "../../api/walletAlertApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoMonthlySummary } from "../../demo/monthlySummaryDemo";
+import { demoWalletAlerts } from "../../demo/walletAlertDemo";
+
 import type { MonthlySummaryResponse } from "../../types/monthlySummary";
 import type { WalletAlertSummary } from "../../types/walletAlert";
 import {
@@ -65,6 +71,8 @@ const getStatusInfo = (
 
 export default function MonthlySummaryPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
   const now = getCurrentMonth();
 
   const [year, setYear] = useState<number>(now.year);
@@ -82,6 +90,21 @@ export default function MonthlySummaryPage() {
   ) => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      const summary: MonthlySummaryResponse = {
+        ...demoMonthlySummary,
+        period: {
+          ...demoMonthlySummary.period,
+          year: targetYear,
+          month: targetMonth,
+        },
+      };
+      setData(summary);
+      setWalletAlerts(demoWalletAlerts);
+      setLoading(false);
+      return;
+    }
 
     try {
       const [summary, alerts] = await Promise.all([
@@ -105,7 +128,7 @@ export default function MonthlySummaryPage() {
 
   useEffect(() => {
     load(year, month);
-  }, [year, month]);
+  }, [year, month, isGuest]);
 
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -160,7 +183,12 @@ export default function MonthlySummaryPage() {
     <div className="ms-page">
       <div className="ms-header">
         <div>
-          <h1 className="ms-title">Tổng kết tháng</h1>
+          <h1 className="ms-title">
+            Tổng kết tháng
+            {isGuest && (
+              <span className="ms-demo-badge">DEMO</span>
+            )}
+          </h1>
           <p className="ms-subtitle">
             Toàn cảnh tài chính tháng{" "}
             {MONTH_NAMES[period.month - 1].toLowerCase()}{" "}
@@ -387,7 +415,13 @@ export default function MonthlySummaryPage() {
             <p>Bạn chưa lập kế hoạch cho tháng này.</p>
             <button
               className="ms-btn-primary"
-              onClick={() => navigate("/monthly-plan")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để lập kế hoạch tháng.");
+                  return;
+                }
+                navigate("/monthly-plan");
+              }}
             >
               Lập kế hoạch tháng
             </button>
@@ -536,7 +570,13 @@ export default function MonthlySummaryPage() {
             </p>
             <button
               className="ms-btn-primary"
-              onClick={() => navigate("/wallet-configuration")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để thiết lập ngân sách.");
+                  return;
+                }
+                navigate("/wallet-configuration");
+              }}
             >
               Thiết lập ngân sách
             </button>
@@ -571,30 +611,50 @@ export default function MonthlySummaryPage() {
       <div className="ms-quick-actions">
         <button
           className="ms-btn-ai"
-          onClick={() =>
-            navigate(`/ai-financial?year=${year}&month=${month}`)
-          }
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để Kakeibo AI phân tích tài chính của bạn.");
+              return;
+            }
+            navigate(`/ai-financial?year=${year}&month=${month}`);
+          }}
         >
           <span className="ms-btn-ai-icon">🤖</span>
           Phân tích bằng AI
         </button>
         <button
           className="ms-btn-secondary"
-          onClick={() =>
-            navigate(`/statistics?year=${year}&month=${month}`)
-          }
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để xem thống kê.");
+              return;
+            }
+            navigate(`/statistics?year=${year}&month=${month}`);
+          }}
         >
           Xem thống kê
         </button>
         <button
           className="ms-btn-secondary"
-          onClick={() => navigate("/transactions")}
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để xem lịch sử giao dịch.");
+              return;
+            }
+            navigate("/transactions");
+          }}
         >
           Xem lịch sử
         </button>
         <button
           className="ms-btn-secondary"
-          onClick={() => navigate("/wallet-alerts")}
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để xem cảnh báo ví.");
+              return;
+            }
+            navigate("/wallet-alerts");
+          }}
         >
           Cảnh báo ví
         </button>

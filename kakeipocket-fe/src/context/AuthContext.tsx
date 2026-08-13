@@ -1,12 +1,13 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
   type ReactNode,
 } from "react";
 
-import api from "../api/axios";
+import api, { setUnauthorizedHandler } from "../api/axios";
 
 import type {
   LoginRequest,
@@ -18,72 +19,72 @@ import type {
 interface AuthContextType {
   user: LoginResponse | null;
   loading: boolean;
-
-  login: (data: LoginRequest) => Promise<void>;
-
-  register: (
-    data: RegisterRequest
-  ) => Promise<RegisterResponse>;
-
-  logout: () => Promise<void>;
-
   isAuthenticated: boolean;
-
+  isGuest: boolean;
   isAdmin: boolean;
+  login: (data: LoginRequest) => Promise<LoginResponse>;
+  register: (data: RegisterRequest) => Promise<RegisterResponse>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  clearUser: () => void;
 }
 
-const AuthContext =
-  createContext<AuthContextType | undefined>(
-    undefined
-  );
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface Props {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: Props) {
-  const [user, setUser] =
-    useState<LoginResponse | null>(null);
+  const [user, setUser] = useState<LoginResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  // Kiểm tra session khi F5
-  useEffect(() => {
-    checkSession();
+  const clearUser = useCallback(() => {
+    setUser(null);
   }, []);
 
-  const checkSession = async () => {
+  const refreshUser = useCallback(async () => {
     try {
-      const response =
-        await api.get("/auth/me");
-
+      const response = await api.get("/auth/me");
       setUser(response.data.result);
     } catch {
       setUser(null);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
-  const login = async (
-    data: LoginRequest
-  ) => {
-    const response =
-      await api.post("/auth/login", data);
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      setUser(null);
+    });
 
-    const result: LoginResponse =
-      response.data.result;
+    (async () => {
+      try {
+        const response = await api.get("/auth/me");
+        setUser(response.data.result);
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+        setUnauthorizedHandler(null);
+      }
+    })();
 
+    return () => {
+      setUnauthorizedHandler(null);
+    };
+  }, []);
+
+  const login = async (data: LoginRequest): Promise<LoginResponse> => {
+    const response = await api.post("/auth/login", data);
+    const result: LoginResponse = response.data.result;
     setUser(result);
+    return result;
   };
 
   const register = async (
     data: RegisterRequest
-  ) => {
-    const response =
-      await api.post("/auth/register", data);
-
+  ): Promise<RegisterResponse> => {
+    const response = await api.post("/auth/register", data);
     return response.data.result;
   };
 
@@ -95,22 +96,23 @@ export function AuthProvider({ children }: Props) {
     }
   };
 
-  const isAuthenticated =
-    user !== null;
-
-  const isAdmin =
-    user?.role === "ADMIN";
+  const isAuthenticated = user !== null;
+  const isGuest = !isAuthenticated && !loading;
+  const isAdmin = user?.role === "ADMIN";
 
   return (
     <AuthContext.Provider
       value={{
         user,
         loading,
+        isAuthenticated,
+        isGuest,
+        isAdmin,
         login,
         register,
         logout,
-        isAuthenticated,
-        isAdmin,
+        refreshUser,
+        clearUser,
       }}
     >
       {children}
@@ -119,14 +121,9 @@ export function AuthProvider({ children }: Props) {
 }
 
 export function useAuth() {
-  const context =
-    useContext(AuthContext);
-
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error(
-      "useAuth must be used inside AuthProvider"
-    );
+    throw new Error("useAuth must be used inside AuthProvider");
   }
-
   return context;
 }

@@ -16,6 +16,12 @@ import {
   deleteTransaction,
 } from "../../api/transactionApi";
 
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoCategories } from "../../demo/categoryDemo";
+import { demoTransactions } from "../../demo/transactionDemo";
+
 import type { Category } from "../../types/category";
 import type {
   ExpenseTransaction,
@@ -73,10 +79,11 @@ const initialFormData: FormData = {
 
 export default function TransactionHistoryPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [deleting, setDeleting] = useState<number | null>(null);
 
   const [allCategories, setAllCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<
@@ -116,6 +123,11 @@ export default function TransactionHistoryPage() {
   }, [type]);
 
   const loadCategories = async () => {
+    if (isGuest) {
+      setAllCategories(demoCategories);
+      return;
+    }
+
     try {
       const expenseCats = await getCategories("EXPENSE");
       const incomeCats = await getCategories("INCOME");
@@ -128,6 +140,12 @@ export default function TransactionHistoryPage() {
   const loadTransactions = async () => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      setTransactions(demoTransactions);
+      setLoading(false);
+      return;
+    }
 
     try {
       const filter: TransactionFilter = {};
@@ -175,6 +193,20 @@ export default function TransactionHistoryPage() {
   };
 
   const handleViewDetail = async (tx: ExpenseTransaction) => {
+    if (isGuest) {
+      setDetailModal({
+        id: tx.id,
+        type: tx.type,
+        categoryId: tx.categoryId,
+        categoryName: tx.categoryName,
+        walletType: tx.walletType,
+        amount: tx.amount,
+        transactionDate: tx.transactionDate,
+        note: tx.note,
+      });
+      return;
+    }
+
     setError("");
 
     try {
@@ -190,6 +222,10 @@ export default function TransactionHistoryPage() {
   };
 
   const handleEdit = (tx: ExpenseTransaction) => {
+    if (isGuest) {
+      requireAuth("Đăng nhập để sửa giao dịch.");
+      return;
+    }
     setEditingId(tx.id);
     setEditingType(tx.type);
     setEditFormData({
@@ -286,7 +322,12 @@ export default function TransactionHistoryPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
 
-    setDeleting(deleteTarget.id);
+    if (isGuest) {
+      requireAuth("Đăng nhập để xóa giao dịch.");
+      return;
+    }
+
+    setSubmitting(true);
     setError("");
 
     try {
@@ -303,7 +344,7 @@ export default function TransactionHistoryPage() {
         setError("Đã xảy ra lỗi khi xóa.");
       }
     } finally {
-      setDeleting(null);
+      setSubmitting(false);
     }
   };
 
@@ -332,11 +373,41 @@ export default function TransactionHistoryPage() {
     return c.type === type;
   });
 
-  const totalExpense = transactions
+  const visibleTransactions = transactions.filter((t) => {
+    if (type !== "ALL" && t.type !== type) return false;
+    if (categoryId && t.categoryId !== parseInt(categoryId, 10))
+      return false;
+    if (walletType && t.walletType !== walletType) return false;
+    if (filterFrom && t.transactionDate < filterFrom) return false;
+    if (filterTo && t.transactionDate > filterTo) return false;
+    if (keyword.trim()) {
+      const k = keyword.trim().toLowerCase();
+      const inCat = (t.categoryName || "").toLowerCase().includes(k);
+      const inNote = (t.note || "").toLowerCase().includes(k);
+      if (!inCat && !inNote) return false;
+    }
+    return true;
+  });
+
+  const sortedTransactions = visibleTransactions.slice().sort((a, b) => {
+    switch (sort) {
+      case "DATE_ASC":
+        return a.transactionDate.localeCompare(b.transactionDate);
+      case "AMOUNT_DESC":
+        return b.amount - a.amount;
+      case "AMOUNT_ASC":
+        return a.amount - b.amount;
+      case "DATE_DESC":
+      default:
+        return b.transactionDate.localeCompare(a.transactionDate);
+    }
+  });
+
+  const totalExpense = sortedTransactions
     .filter((t) => t.type === "EXPENSE")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalIncome = transactions
+  const totalIncome = sortedTransactions
     .filter((t) => t.type === "INCOME")
     .reduce((sum, t) => sum + t.amount, 0);
 
@@ -352,7 +423,12 @@ export default function TransactionHistoryPage() {
     <div className="hist-page">
       <div className="hist-header">
         <div>
-          <h1 className="hist-title">Lịch sử giao dịch</h1>
+          <h1 className="hist-title">
+            Lịch sử giao dịch
+            {isGuest && (
+              <span className="hist-demo-badge">DEMO</span>
+            )}
+          </h1>
           <p className="hist-subtitle">
             Xem và quản lý các khoản thu chi của bạn.
           </p>
@@ -484,7 +560,7 @@ export default function TransactionHistoryPage() {
         <div className="hist-summary-item">
           <span className="hist-summary-label">Số giao dịch</span>
           <span className="hist-summary-value">
-            {transactions.length}
+            {sortedTransactions.length}
           </span>
         </div>
         <div className="hist-summary-item">
@@ -501,19 +577,31 @@ export default function TransactionHistoryPage() {
         </div>
       </div>
 
-      {transactions.length === 0 ? (
+      {sortedTransactions.length === 0 ? (
         <div className="hist-empty">
           <p>Không tìm thấy giao dịch.</p>
           <div className="hist-empty-actions">
             <button
               className="hist-btn-secondary"
-              onClick={() => navigate("/expenses")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để thêm chi tiêu.");
+                  return;
+                }
+                navigate("/expenses");
+              }}
             >
               + Thêm chi tiêu
             </button>
             <button
               className="hist-btn-primary"
-              onClick={() => navigate("/incomes")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để thêm thu nhập.");
+                  return;
+                }
+                navigate("/incomes");
+              }}
             >
               + Thêm thu nhập
             </button>
@@ -521,7 +609,7 @@ export default function TransactionHistoryPage() {
         </div>
       ) : (
         <div className="hist-list">
-          {transactions.map((tx) => (
+          {sortedTransactions.map((tx) => (
             <div key={tx.id} className="hist-item">
               <div
                 className="hist-item-main"
@@ -571,6 +659,10 @@ export default function TransactionHistoryPage() {
                   className="hist-btn-icon"
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (isGuest) {
+                      requireAuth("Đăng nhập để xóa giao dịch.");
+                      return;
+                    }
                     setDeleteTarget(tx);
                   }}
                   title="Xóa"
@@ -662,7 +754,7 @@ export default function TransactionHistoryPage() {
         </div>
       )}
 
-      {editingId !== null && editingType && (
+      {editingId !== null && editingType && !isGuest && (
         <div
           className="hist-modal-overlay"
           onClick={handleCancelEdit}
@@ -805,9 +897,9 @@ export default function TransactionHistoryPage() {
               <button
                 className="hist-btn-danger"
                 onClick={handleDelete}
-                disabled={deleting !== null}
+                disabled={submitting}
               >
-                {deleting !== null ? "Đang xóa..." : "Xóa"}
+                {submitting ? "Đang xóa..." : "Xóa"}
               </button>
             </div>
           </div>

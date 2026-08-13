@@ -1,13 +1,16 @@
-import {
-  useState,
-  useEffect,
-} from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getDashboard } from "../../api/dashboardApi";
 import { getWalletAlerts } from "../../api/walletAlertApi";
 
 import WalletAlertCard from "../../components/WalletAlertCard";
+
+import { useAuth } from "../../context/AuthContext";
+import { useRequireAuth } from "../../components/LoginRequiredProvider";
+
+import { demoDashboard } from "../../demo/dashboardDemo";
+import { demoWalletAlerts } from "../../demo/walletAlertDemo";
 
 import type {
   DashboardResponse,
@@ -74,6 +77,8 @@ const clampProgress = (
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const { isGuest } = useAuth();
+  const requireAuth = useRequireAuth();
 
   const now = getCurrentMonth();
 
@@ -92,6 +97,13 @@ export default function DashboardPage() {
   ) => {
     setLoading(true);
     setError("");
+
+    if (isGuest) {
+      setData(demoDashboard);
+      setAlerts(demoWalletAlerts);
+      setLoading(false);
+      return;
+    }
 
     try {
       const [dashboardData, alertsData] = await Promise.all([
@@ -115,7 +127,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboard(year, month);
-  }, [year, month]);
+  }, [year, month, isGuest]);
 
   const handlePrevMonth = () => {
     if (month === 1) {
@@ -176,7 +188,12 @@ export default function DashboardPage() {
     <div className="dash-page">
       <div className="dash-header">
         <div>
-          <h1 className="dash-title">Dashboard</h1>
+          <h1 className="dash-title">
+            Dashboard
+            {isGuest && (
+              <span className="dash-demo-badge">DEMO</span>
+            )}
+          </h1>
           <p className="dash-subtitle">
             Tổng quan tài chính cá nhân của bạn.
           </p>
@@ -257,7 +274,13 @@ export default function DashboardPage() {
             )}
           <button
             className="dash-link-btn"
-            onClick={() => navigate("/incomes")}
+            onClick={() => {
+              if (isGuest) {
+                requireAuth("Đăng nhập để xem thu nhập của bạn.");
+                return;
+              }
+              navigate("/incomes");
+            }}
           >
             Xem thu nhập →
           </button>
@@ -270,7 +293,13 @@ export default function DashboardPage() {
           </span>
           <button
             className="dash-link-btn"
-            onClick={() => navigate("/expenses")}
+            onClick={() => {
+              if (isGuest) {
+                requireAuth("Đăng nhập để xem chi tiêu của bạn.");
+                return;
+              }
+              navigate("/expenses");
+            }}
           >
             Xem chi tiêu →
           </button>
@@ -337,7 +366,13 @@ export default function DashboardPage() {
           {alerts.totalAlerts > 0 && (
             <button
               className="dash-btn-secondary dash-alert-view-all"
-              onClick={() => navigate("/wallet-alerts")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để xem cảnh báo ngân sách.");
+                  return;
+                }
+                navigate("/wallet-alerts");
+              }}
             >
               Xem tất cả cảnh báo →
             </button>
@@ -348,9 +383,13 @@ export default function DashboardPage() {
       <div className="dash-quick-summary">
         <button
           className="dash-quick-card"
-          onClick={() =>
-            navigate(`/monthly-summary?year=${year}&month=${month}`)
-          }
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để xem tổng kết tháng.");
+              return;
+            }
+            navigate(`/monthly-summary?year=${year}&month=${month}`);
+          }}
         >
           <span className="dash-quick-icon">📊</span>
           <span className="dash-quick-label">
@@ -361,9 +400,13 @@ export default function DashboardPage() {
 
         <button
           className="dash-quick-card dash-quick-ai"
-          onClick={() =>
-            navigate(`/ai-financial?year=${year}&month=${month}`)
-          }
+          onClick={() => {
+            if (isGuest) {
+              requireAuth("Đăng nhập để Kakeibo AI phân tích tài chính của bạn.");
+              return;
+            }
+            navigate(`/ai-financial?year=${year}&month=${month}`);
+          }}
         >
           <span className="dash-quick-icon">🤖</span>
           <span className="dash-quick-label">
@@ -379,7 +422,13 @@ export default function DashboardPage() {
           {!data.monthlyPlan && (
             <button
               className="dash-btn-primary"
-              onClick={() => navigate("/monthly-plan")}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để thiết lập kế hoạch tháng.");
+                  return;
+                }
+                navigate("/monthly-plan");
+              }}
             >
               Thiết lập ngay
             </button>
@@ -455,7 +504,13 @@ export default function DashboardPage() {
           </h2>
           <button
             className="dash-btn-secondary"
-            onClick={() => navigate("/transactions")}
+            onClick={() => {
+              if (isGuest) {
+                requireAuth("Đăng nhập để xem lịch sử giao dịch.");
+                return;
+              }
+              navigate("/transactions");
+            }}
           >
             Xem tất cả
           </button>
