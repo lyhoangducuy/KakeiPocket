@@ -74,32 +74,84 @@ public class GeminiService {
                     .body(body)
                     .retrieve()
                     .onStatus(HttpStatusCode::isError, (req, res) -> {
-                        log.warn("Gemini API error status={}",
-                                res.getStatusCode());
+                        int status = res.getStatusCode().value();
+                        String errorBody = "";
+                        try {
+                            errorBody = new String(
+                                    res.getBody().readAllBytes(),
+                                    java.nio.charset.StandardCharsets.UTF_8
+                            );
+                        } catch (Exception ignored) {
+                            // body không đọc được thì bỏ qua
+                        }
+                        log.warn(
+                                "Gemini API error status={} body={}",
+                                status, errorBody
+                        );
+                        throw new AppException(
+                                ErrorCode.AI_SERVICE_UNAVAILABLE
+                        );
                     })
                     .body(String.class);
 
             return extractText(responseBody);
+        } catch (AppException ex) {
+            throw ex;
         } catch (RestClientException ex) {
-            log.warn("Gemini request failed: {}", ex.getMessage());
+            log.warn(
+                    "Gemini request failed: {}",
+                    ex.getMessage()
+            );
             throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
         }
     }
 
     private String extractText(String responseBody) {
         if (responseBody == null || responseBody.isBlank()) {
+            log.warn(
+                    "Gemini returned empty body. "
+                            + "Check GEMINI_API_KEY env var."
+                            );
             throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
         }
         try {
             JsonNode root = objectMapper.readTree(responseBody);
+            JsonNode errorNode = root.path("error");
+            if (errorNode.isObject()) {
+                log.warn(
+                        "Gemini returned error: code={} message={}",
+                        errorNode.path("code").asText(""),
+                        errorNode.path("message").asText("")
+                );
+                throw new AppException(
+                        ErrorCode.AI_SERVICE_UNAVAILABLE
+                );
+            }
             JsonNode candidates = root.path("candidates");
             if (!candidates.isArray() || candidates.isEmpty()) {
+                log.warn(
+                        "Gemini response has no candidates. body={}",
+                        responseBody
+                );
                 throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
             }
-            JsonNode parts = candidates.get(0)
-                    .path("content")
-                    .path("parts");
+            JsonNode first = candidates.get(0);
+            JsonNode finishReason = first.path("finishReason");
+            if (finishReason.isTextual()) {
+                String reason = finishReason.asText();
+                if (!"STOP".equals(reason)) {
+                    log.warn(
+                            "Gemini finishReason={} body={}",
+                            reason, responseBody
+                    );
+                }
+            }
+            JsonNode parts = first.path("content").path("parts");
             if (!parts.isArray() || parts.isEmpty()) {
+                log.warn(
+                        "Gemini response has no parts. body={}",
+                        responseBody
+                );
                 throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
             }
             StringBuilder sb = new StringBuilder();
@@ -111,11 +163,22 @@ public class GeminiService {
             }
             String text = sb.toString().trim();
             if (text.isEmpty()) {
-                throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
+                log.warn(
+                        "Gemini response parts had no text. body={}",
+                        responseBody
+                );
+                throw new AppException(
+                        ErrorCode.AI_SERVICE_UNAVAILABLE
+                );
             }
             return text;
+        } catch (AppException ex) {
+            throw ex;
         } catch (Exception ex) {
-            log.warn("Failed to parse Gemini response");
+            log.warn(
+                    "Failed to parse Gemini response. body={}",
+                    responseBody
+            );
             throw new AppException(ErrorCode.AI_SERVICE_UNAVAILABLE);
         }
     }
