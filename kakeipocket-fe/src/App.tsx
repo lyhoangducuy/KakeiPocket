@@ -23,6 +23,8 @@ import WalletConfigurationPage
 
 import CategoryPage from "./pages/Category/CategoryPage";
 
+import ExpensePage from "./pages/Expense/ExpensePage";
+
 import AdminDashboardPage
   from "./pages/admin/AdminDashboardPage";
 
@@ -95,6 +97,13 @@ function App() {
                 path="/categories"
                 element={
                   <CategoryPage />
+                }
+              />
+
+              <Route
+                path="/expenses"
+                element={
+                  <ExpensePage />
                 }
               />
 

@@ -50,6 +50,10 @@ export default function Navbar() {
               Danh mục
             </Link>
 
+            <Link to="/expenses">
+              Chi tiêu
+            </Link>
+
             <Link to="/profile">
               Profile
             </Link>
