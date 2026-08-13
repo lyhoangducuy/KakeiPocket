@@ -28,6 +28,115 @@ const MONTH_NAMES = [
   "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12",
 ];
 
+const getCurrentMonth = () => {
+  const d = new Date();
+  return {
+    year: d.getFullYear(),
+    month: d.getMonth() + 1,
+  };
+};
+
+type QuickActionTone = "create" | "view" | "ai" | "data";
+
+interface QuickAction {
+  key: string;
+  label: string;
+  sub: string;
+  icon: string;
+  tone: QuickActionTone;
+  path?: string;
+  requiresAuth: boolean;
+  authMessage: string;
+}
+
+const buildQuickActions = (): QuickAction[] => {
+  const current = getCurrentMonth();
+  const monthLabel = MONTH_NAMES[current.month - 1];
+
+  return [
+    {
+      key: "expense",
+      label: "Thêm chi tiêu",
+      sub: "Ghi lại khoản chi mới",
+      icon: "➕",
+      tone: "create",
+      path: "/expenses",
+      requiresAuth: true,
+      authMessage: "Đăng nhập để thêm chi tiêu.",
+    },
+    {
+      key: "income",
+      label: "Thêm thu nhập",
+      sub: "Ghi lại khoản thu mới",
+      icon: "💰",
+      tone: "create",
+      path: "/incomes",
+      requiresAuth: true,
+      authMessage: "Đăng nhập để thêm thu nhập.",
+    },
+    {
+      key: "transactions",
+      label: "Giao dịch",
+      sub: "Lịch sử thu chi",
+      icon: "📋",
+      tone: "view",
+      path: "/transactions",
+      requiresAuth: false,
+      authMessage: "",
+    },
+    {
+      key: "monthly-plan",
+      label: "Kế hoạch tháng",
+      sub: "Lập & chỉnh sửa plan",
+      icon: "📅",
+      tone: "view",
+      path: "/monthly-plan",
+      requiresAuth: false,
+      authMessage: "",
+    },
+    {
+      key: "wallet",
+      label: "Quản lý ví",
+      sub: "4 ví ngân sách",
+      icon: "👛",
+      tone: "view",
+      path: "/wallet-configuration",
+      requiresAuth: false,
+      authMessage: "",
+    },
+    {
+      key: "statistics",
+      label: "Thống kê",
+      sub: "Biểu đồ chi tiêu",
+      icon: "📊",
+      tone: "view",
+      path: "/statistics",
+      requiresAuth: false,
+      authMessage: "",
+    },
+    {
+      key: "monthly-summary",
+      label: "Tổng kết tháng",
+      sub: `Tổng kết ${monthLabel}`,
+      icon: "📈",
+      tone: "data",
+      path: `/monthly-summary?year=${current.year}&month=${current.month}`,
+      requiresAuth: false,
+      authMessage: "",
+    },
+    {
+      key: "ai",
+      label: "Kakeibo AI",
+      sub: "Trợ lý tài chính",
+      icon: "🤖",
+      tone: "ai",
+      path: `/ai-financial?year=${current.year}&month=${current.month}`,
+      requiresAuth: false,
+      authMessage: "",
+    },
+  ];
+};
+
 const formatCurrency = (
   value: number | null | undefined
 ): string => {
@@ -40,14 +149,6 @@ const formatDate = (dateStr: string): string => {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   return `${day}/${month}`;
-};
-
-const getCurrentMonth = () => {
-  const d = new Date();
-  return {
-    year: d.getFullYear(),
-    month: d.getMonth() + 1,
-  };
 };
 
 const getWalletLabel = (
@@ -257,21 +358,7 @@ export default function DashboardPage() {
             {formatCurrency(data.income.total)} ₫
           </span>
           {data.monthlyPlan?.incomeTarget !== null &&
-            data.monthlyPlan?.incomeTarget !== undefined && (
-              <div className="dash-kpi-progress-wrap">
-                <div className="dash-progress-bar">
-                  <div
-                    className="dash-progress-fill dash-progress-income"
-                    style={{
-                      width: `${clampProgress(data.income.progress)}%`,
-                    }}
-                  />
-                </div>
-                <span className="dash-progress-text">
-                  {Math.round(clampProgress(data.income.progress))}%
-                </span>
-              </div>
-            )}
+            data.monthlyPlan?.incomeTarget !== undefined}
           <button
             className="dash-link-btn"
             onClick={() => {
@@ -380,40 +467,51 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="dash-quick-summary">
-        <button
-          className="dash-quick-card"
-          onClick={() => {
-            if (isGuest) {
-              requireAuth("Đăng nhập để xem tổng kết tháng.");
-              return;
-            }
-            navigate(`/monthly-summary?year=${year}&month=${month}`);
-          }}
-        >
-          <span className="dash-quick-icon">📊</span>
-          <span className="dash-quick-label">
-            Tổng kết tháng
+      <div className="dash-section">
+        <div className="dash-section-header">
+          <h2 className="dash-section-title">Thao tác nhanh</h2>
+          <span className="dash-section-hint">
+            Truy cập nhanh các chức năng thường dùng
           </span>
-          <span className="dash-quick-arrow">→</span>
-        </button>
+        </div>
 
-        <button
-          className="dash-quick-card dash-quick-ai"
-          onClick={() => {
-            if (isGuest) {
-              requireAuth("Đăng nhập để Kakeibo AI phân tích tài chính của bạn.");
-              return;
-            }
-            navigate(`/ai-financial?year=${year}&month=${month}`);
-          }}
-        >
-          <span className="dash-quick-icon">🤖</span>
-          <span className="dash-quick-label">
-            Kakeibo AI
-          </span>
-          <span className="dash-quick-arrow">→</span>
-        </button>
+        <div className="dash-quick-grid">
+          {buildQuickActions().map((action) => {
+            const requiresAuth = action.requiresAuth;
+            const disabled =
+              requiresAuth && isGuest;
+
+            return (
+              <button
+                key={action.key}
+                type="button"
+                className={`dash-quick-tile dash-quick-tile-${action.tone} ${
+                  disabled ? "dash-quick-tile-disabled" : ""
+                }`}
+                onClick={() => {
+                  if (isGuest && requiresAuth) {
+                    requireAuth(action.authMessage);
+                    return;
+                  }
+                  if (action.path) {
+                    navigate(action.path);
+                  }
+                }}
+                disabled={disabled}
+              >
+                <span className="dash-quick-tile-icon">
+                  {action.icon}
+                </span>
+                <span className="dash-quick-tile-label">
+                  {action.label}
+                </span>
+                <span className="dash-quick-tile-sub">
+                  {action.sub}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="dash-section">

@@ -1,7 +1,10 @@
 import {
   Link,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
+
+import { useState, useEffect, useRef } from "react";
 
 import { useAuth } from "../context/AuthContext";
 
@@ -16,6 +19,31 @@ export default function Navbar() {
   } = useAuth();
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setUserMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () =>
+      document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -23,6 +51,8 @@ export default function Navbar() {
   };
 
   const logoTo = isAuthenticated ? "/dashboard" : "/";
+  const initials =
+    (user?.email ?? "U").trim().charAt(0).toUpperCase() || "U";
 
   return (
     <nav className="navbar">
@@ -30,7 +60,20 @@ export default function Navbar() {
         KakeiPocket
       </Link>
 
-      <div className="nav-links">
+      {/* MOBILE TOGGLE */}
+      <button
+        type="button"
+        className="nav-burger"
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-label="Mở menu"
+        aria-expanded={menuOpen}
+      >
+        {menuOpen ? "✕" : "☰"}
+      </button>
+
+      <div
+        className={`nav-links ${menuOpen ? "nav-links-open" : ""}`}
+      >
         {!isAuthenticated && (
           <>
             <div className="nav-links-group">
@@ -39,10 +82,16 @@ export default function Navbar() {
               <a href="#about">Giới thiệu</a>
             </div>
             <div className="nav-actions">
-              <Link to="/login" className="nav-btn-secondary">
+              <Link
+                to="/login"
+                className="nav-btn-secondary"
+              >
                 Đăng nhập
               </Link>
-              <Link to="/register" className="nav-btn-primary">
+              <Link
+                to="/register"
+                className="nav-btn-primary"
+              >
                 Đăng ký
               </Link>
             </div>
@@ -53,30 +102,90 @@ export default function Navbar() {
           <>
             <div className="nav-links-group">
               <Link to="/dashboard">Dashboard</Link>
+              <Link to="/transactions">Giao dịch</Link>
               <Link to="/monthly-plan">Kế hoạch</Link>
-              <Link to="/wallet-configuration">4 ví</Link>
-              <Link to="/categories">Danh mục</Link>
-              <Link to="/expenses">Chi tiêu</Link>
-              <Link to="/incomes">Thu nhập</Link>
-              <Link to="/transactions">Lịch sử</Link>
               <Link to="/statistics">Thống kê</Link>
-              <Link to="/wallet-alerts">Cảnh báo</Link>
-              <Link to="/monthly-summary">Tổng kết</Link>
-              <Link to="/ai-financial">Kakeibo AI</Link>
-              <Link to="/profile">Profile</Link>
-              {isAdmin && <Link to="/admin">Admin</Link>}
+              <Link to="/wallet-configuration">Ví</Link>
             </div>
+
             <div className="nav-actions">
-              <span className="nav-user">
-                {user?.email} ({user?.role})
-              </span>
               <button
                 type="button"
-                className="nav-btn-secondary"
-                onClick={handleLogout}
+                className="nav-icon-btn"
+                aria-label="Thông báo"
+                title="Thông báo (xem trong Dashboard)"
               >
-                Đăng xuất
+                <span className="nav-icon">🔔</span>
               </button>
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="nav-admin-link"
+                >
+                  Admin
+                </Link>
+              )}
+
+              <div
+                className="nav-user-menu"
+                ref={userMenuRef}
+              >
+                <button
+                  type="button"
+                  className="nav-avatar"
+                  onClick={() =>
+                    setUserMenuOpen((o) => !o)
+                  }
+                  aria-label="Tài khoản"
+                  aria-expanded={userMenuOpen}
+                >
+                  <span>{initials}</span>
+                </button>
+
+                {userMenuOpen && (
+                  <div className="nav-user-dropdown">
+                    <div className="nav-user-dropdown-info">
+                      <span className="nav-user-dropdown-name">
+                        {user?.email}
+                      </span>
+                      <span className="nav-user-dropdown-email">
+                        Tài khoản đã đăng nhập
+                      </span>
+                      {user?.role && (
+                        <span className="nav-user-dropdown-role">
+                          {user.role}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="nav-user-dropdown-divider" />
+
+                    <Link
+                      to="/profile"
+                      className="nav-user-dropdown-item"
+                    >
+                      Hồ sơ
+                    </Link>
+                    <Link
+                      to="/categories"
+                      className="nav-user-dropdown-item"
+                    >
+                      Danh mục
+                    </Link>
+
+                    <div className="nav-user-dropdown-divider" />
+
+                    <button
+                      type="button"
+                      className="nav-user-dropdown-item nav-user-dropdown-logout"
+                      onClick={handleLogout}
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </>
         )}
