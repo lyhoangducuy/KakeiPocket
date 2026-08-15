@@ -351,11 +351,24 @@
 
 .exp-item-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 6px;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.exp-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .exp-item-date {
@@ -367,6 +380,8 @@
   font-size: 16px;
   font-weight: 600;
   color: #dc2626;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .exp-item-info {

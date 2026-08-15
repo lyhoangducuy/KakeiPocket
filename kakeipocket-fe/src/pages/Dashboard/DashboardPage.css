@@ -569,18 +569,32 @@
 
 .dash-recent-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
   padding: 12px 16px;
   background: white;
   border-radius: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
+.dash-recent-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
 .dash-recent-info {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .dash-recent-category {
@@ -617,20 +631,48 @@
 
 .dash-top-info {
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-top-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dash-top-text {
+  display: flex;
   justify-content: space-between;
   align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 8px;
 }
 
 .dash-top-name {
   font-size: 14px;
   font-weight: 500;
   color: #1a1a2e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dash-top-amount {
   font-size: 14px;
   font-weight: 600;
   color: #dc2626;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .dash-btn-primary {

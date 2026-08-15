@@ -77,26 +77,31 @@ export const demoDashboard: DashboardResponse = {
     {
       categoryId: 202,
       categoryName: "Tiền thuê nhà",
+      categoryIcon: "🏠",
       totalAmount: 3_500_000,
     },
     {
       categoryId: 203,
       categoryName: "Mua sắm",
+      categoryIcon: "🛒",
       totalAmount: 1_800_000,
     },
     {
       categoryId: 201,
       categoryName: "Tiền ăn",
+      categoryIcon: "🍜",
       totalAmount: 1_900_000,
     },
     {
       categoryId: 204,
       categoryName: "Giải trí",
+      categoryIcon: "🎮",
       totalAmount: 1_500_000,
     },
     {
       categoryId: 205,
       categoryName: "Đi lại",
+      categoryIcon: "🚗",
       totalAmount: 800_000,
     },
   ],

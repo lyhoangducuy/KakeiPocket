@@ -48,6 +48,7 @@ export interface RecentTransaction {
 export interface TopExpenseCategory {
   categoryId: number;
   categoryName: string;
+  categoryIcon?: string | null;
   totalAmount: number;
 }
 

@@ -32,6 +32,7 @@ import type {
 import { WALLET_OPTIONS } from "../../types/transaction";
 
 import "./ExpensePage.css";
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 const formatCurrency = (
   value: number | null | undefined
@@ -606,6 +607,9 @@ export default function ExpensePage() {
             <div key={tx.id} className="exp-item">
               <div className="exp-item-main">
                 <div className="exp-item-header">
+                  <span className="exp-item-icon">
+                    {getCategoryIcon(tx, categories)}
+                  </span>
                   <span className="exp-item-date">
                     {formatDate(tx.transactionDate)}
                   </span>

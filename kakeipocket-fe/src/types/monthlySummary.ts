@@ -37,6 +37,7 @@ export interface PlanComparison {
 export interface TopExpenseCategory {
   categoryId: number;
   categoryName: string;
+  categoryIcon?: string | null;
   amount: number;
   percentage: number;
 }
@@ -52,6 +53,7 @@ export interface LargestExpense {
   amount: number;
   categoryId: number | null;
   categoryName: string | null;
+  categoryIcon?: string | null;
   walletType: WalletType | null;
   date: string;
   note: string | null;

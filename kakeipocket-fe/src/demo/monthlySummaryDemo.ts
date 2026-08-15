@@ -48,6 +48,7 @@ export const demoMonthlySummary: MonthlySummaryResponse = {
   topExpenseCategory: {
     categoryId: 202,
     categoryName: "Tiền thuê nhà",
+    categoryIcon: "🏠",
     amount: 3_500_000,
     percentage: 36.84,
   },
@@ -61,6 +62,7 @@ export const demoMonthlySummary: MonthlySummaryResponse = {
     amount: 3_500_000,
     categoryId: 202,
     categoryName: "Tiền thuê nhà",
+    categoryIcon: "🏠",
     walletType: "NECESSARY",
     date: from,
     note: "Tiền thuê phòng",

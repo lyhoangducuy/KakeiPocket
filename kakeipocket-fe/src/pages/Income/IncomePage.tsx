@@ -28,6 +28,7 @@ import type {
 } from "../../types/transaction";
 
 import "./IncomePage.css";
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 const formatCurrency = (
   value: number | null | undefined
@@ -516,6 +517,9 @@ export default function IncomePage() {
             <div key={tx.id} className="inc-item">
               <div className="inc-item-main">
                 <div className="inc-item-header">
+                  <span className="inc-item-icon">
+                    {getCategoryIcon(tx, categories)}
+                  </span>
                   <span className="inc-item-date">
                     {formatDate(tx.transactionDate)}
                   </span>

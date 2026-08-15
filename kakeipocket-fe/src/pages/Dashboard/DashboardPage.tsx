@@ -15,6 +15,7 @@ import { useRequireAuth } from "../../components/LoginRequiredProvider";
 
 import { demoDashboard } from "../../demo/dashboardDemo";
 import { demoWalletAlerts } from "../../demo/walletAlertDemo";
+import { demoCategories } from "../../demo/categoryDemo";
 
 import type {
   DashboardResponse,
@@ -726,24 +727,38 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="dash-recent-list">
-            {data.recentTransactions.map((tx) => (
-              <div key={tx.id} className="dash-recent-item">
-                <div className="dash-recent-info">
-                  <span className="dash-recent-category">
-                    {tx.categoryName ?? "—"}
+            {data.recentTransactions.map((tx) => {
+              const catIcon =
+                tx.categoryId != null
+                  ? demoCategories.find((c) => c.id === tx.categoryId)?.icon
+                  : null;
+              const fallback =
+                tx.type === "EXPENSE" ? "💸" : "💰";
+              return (
+                <div
+                  key={tx.id}
+                  className="dash-recent-item"
+                >
+                  <span className="dash-recent-icon">
+                    {catIcon ?? fallback}
                   </span>
-                  <span className="dash-recent-date">
-                    {formatDate(tx.transactionDate)}
+                  <div className="dash-recent-info">
+                    <span className="dash-recent-category">
+                      {tx.categoryName ?? "—"}
+                    </span>
+                    <span className="dash-recent-date">
+                      {formatDate(tx.transactionDate)}
+                    </span>
+                  </div>
+                  <span
+                    className={`dash-recent-amount ${tx.type === "EXPENSE" ? "dash-amount-expense" : "dash-amount-income"}`}
+                  >
+                    {tx.type === "EXPENSE" ? "-" : "+"}
+                    {formatCurrency(tx.amount)} ₫
                   </span>
                 </div>
-                <span
-                  className={`dash-recent-amount ${tx.type === "EXPENSE" ? "dash-amount-expense" : "dash-amount-income"}`}
-                >
-                  {tx.type === "EXPENSE" ? "-" : "+"}
-                  {formatCurrency(tx.amount)} ₫
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -771,12 +786,17 @@ export default function DashboardPage() {
                   className="dash-top-item"
                 >
                   <div className="dash-top-info">
-                    <span className="dash-top-name">
-                      {cat.categoryName}
+                    <span className="dash-top-icon">
+                      {cat.categoryIcon ?? "💸"}
                     </span>
-                    <span className="dash-top-amount">
-                      {formatCurrency(cat.totalAmount)} ₫
-                    </span>
+                    <div className="dash-top-text">
+                      <span className="dash-top-name">
+                        {cat.categoryName}
+                      </span>
+                      <span className="dash-top-amount">
+                        {formatCurrency(cat.totalAmount)} ₫
+                      </span>
+                    </div>
                   </div>
                   <div className="dash-progress-bar">
                     <div

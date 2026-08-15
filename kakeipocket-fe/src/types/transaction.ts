@@ -32,6 +32,7 @@ export interface ExpenseTransaction {
   type: TransactionType;
   categoryId: number;
   categoryName: string;
+  categoryIcon?: string | null;
   walletType: WalletType | null;
   amount: number;
   transactionDate: string;
@@ -45,6 +46,7 @@ export interface TransactionDetail {
   type: TransactionType;
   categoryId: number;
   categoryName: string;
+  categoryIcon?: string | null;
   walletType: WalletType | null;
   amount: number;
   transactionDate: string;

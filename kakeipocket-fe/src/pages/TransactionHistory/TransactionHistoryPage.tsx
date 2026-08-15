@@ -37,6 +37,7 @@ import type {
 import { WALLET_OPTIONS } from "../../types/transaction";
 
 import "./TransactionHistoryPage.css";
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 const formatCurrency = (
   value: number | null | undefined
@@ -616,6 +617,9 @@ export default function TransactionHistoryPage() {
                 onClick={() => handleViewDetail(tx)}
               >
                 <div className="hist-item-header">
+                  <span className="hist-item-icon">
+                    {getCategoryIcon(tx, allCategories)}
+                  </span>
                   <span className="hist-item-date">
                     {formatDate(tx.transactionDate)}
                   </span>
@@ -696,6 +700,9 @@ export default function TransactionHistoryPage() {
             <div className="hist-detail-row">
               <span className="hist-detail-label">Danh mục</span>
               <span className="hist-detail-value">
+                <span className="hist-detail-icon">
+                  {getCategoryIcon(detailModal, allCategories)}
+                </span>
                 {detailModal.categoryName}
               </span>
             </div>

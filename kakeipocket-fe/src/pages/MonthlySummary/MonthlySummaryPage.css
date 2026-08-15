@@ -328,6 +328,25 @@
   font-size: 15px;
   font-weight: 600;
   color: #1a1a2e;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ms-highlight-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #fef2f2;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .ms-highlight-value {

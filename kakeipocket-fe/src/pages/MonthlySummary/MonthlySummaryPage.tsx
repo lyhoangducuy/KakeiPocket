@@ -11,6 +11,7 @@ import { useRequireAuth } from "../../components/LoginRequiredProvider";
 
 import { demoMonthlySummary } from "../../demo/monthlySummaryDemo";
 import { demoWalletAlerts } from "../../demo/walletAlertDemo";
+import { demoCategories } from "../../demo/categoryDemo";
 
 import type { MonthlySummaryResponse } from "../../types/monthlySummary";
 import type { WalletAlertSummary } from "../../types/walletAlert";
@@ -439,6 +440,14 @@ export default function MonthlySummaryPage() {
             {data.topExpenseCategory ? (
               <>
                 <span className="ms-highlight-name">
+                  <span className="ms-highlight-icon">
+                    {data.topExpenseCategory.categoryIcon ??
+                      demoCategories.find(
+                        (c) =>
+                          c.id === data.topExpenseCategory?.categoryId
+                      )?.icon ??
+                      "💸"}
+                  </span>
                   {data.topExpenseCategory.categoryName}
                 </span>
                 <span className="ms-highlight-value">
@@ -493,6 +502,17 @@ export default function MonthlySummaryPage() {
             {data.largestExpense ? (
               <>
                 <span className="ms-highlight-name">
+                  <span className="ms-highlight-icon">
+                    {data.largestExpense.categoryIcon ??
+                      (data.largestExpense.categoryId != null
+                        ? demoCategories.find(
+                            (c) =>
+                              c.id ===
+                              data.largestExpense?.categoryId
+                          )?.icon
+                        : null) ??
+                      "💸"}
+                  </span>
                   {data.largestExpense.note ||
                     data.largestExpense.categoryName ||
                     "Không có mô tả"}
