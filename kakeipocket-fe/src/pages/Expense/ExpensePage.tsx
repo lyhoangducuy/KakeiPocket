@@ -3,11 +3,13 @@ import {
   useEffect,
   type FormEvent,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { getCategories } from "../../api/categoryApi";
 import {
   createExpense,
   getExpenses,
+  getIncomes,
   updateExpense,
   deleteTransaction,
 } from "../../api/transactionApi";
@@ -94,6 +96,7 @@ const initialFormData: FormData = {
 };
 
 export default function ExpensePage() {
+  const navigate = useNavigate();
   const { isGuest } = useAuth();
   const requireAuth = useRequireAuth();
 
@@ -115,12 +118,29 @@ export default function ExpensePage() {
   const [deleteTarget, setDeleteTarget] =
     useState<ExpenseTransaction | null>(null);
 
+  const [hasIncome, setHasIncome] = useState<boolean>(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
     loadInitialData();
   }, []);
+
+  useEffect(() => {
+    if (!isGuest) {
+      checkHasIncome();
+    }
+  }, [isGuest]);
+
+  const checkHasIncome = async () => {
+    try {
+      const incomes = await getIncomes();
+      setHasIncome(incomes.length > 0);
+    } catch {
+      setHasIncome(false);
+    }
+  };
 
   useEffect(() => {
     loadTransactions();
@@ -390,7 +410,26 @@ export default function ExpensePage() {
       </div>
 
       {error && <div className="exp-error">{error}</div>}
-      {success && (
+      {success && !editingId && !hasIncome && (
+        <div className="exp-success-card">
+          <span className="exp-success-icon">✓</span>
+          <div className="exp-success-body">
+            <strong>{success}</strong>
+            <p>
+              Bước tiếp theo: ghi nhận khoản thu nhập để theo dõi
+              dòng tiền.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="exp-btn-primary exp-btn-next"
+            onClick={() => navigate("/incomes")}
+          >
+            Thêm thu nhập →
+          </button>
+        </div>
+      )}
+      {success && (editingId || hasIncome) && (
         <div className="exp-success">{success}</div>
       )}
 

@@ -5,6 +5,10 @@ import { getDashboard } from "../../api/dashboardApi";
 import { getWalletAlerts } from "../../api/walletAlertApi";
 
 import WalletAlertCard from "../../components/WalletAlertCard";
+import SetupProgress, {
+  computeSetupState,
+  type SetupState,
+} from "../../components/SetupProgress";
 
 import { useAuth } from "../../context/AuthContext";
 import { useRequireAuth } from "../../components/LoginRequiredProvider";
@@ -49,15 +53,37 @@ interface QuickAction {
   authMessage: string;
 }
 
-const buildQuickActions = (): QuickAction[] => {
+const buildQuickActions = (
+  setup: SetupState
+): QuickAction[] => {
   const current = getCurrentMonth();
   const monthLabel = MONTH_NAMES[current.month - 1];
 
-  return [
+  const all: QuickAction[] = [
+    {
+      key: "plan",
+      label: "Thêm kế hoạch",
+      sub: "Bước 1: thiết lập mục tiêu tháng",
+      icon: "📅",
+      tone: "create",
+      path: "/monthly-plan",
+      requiresAuth: true,
+      authMessage: "Đăng nhập để tạo kế hoạch tháng.",
+    },
+    {
+      key: "wallet",
+      label: "Thêm giới hạn ví",
+      sub: "Bước 2: thiết lập hạn mức 4 ví",
+      icon: "👛",
+      tone: "create",
+      path: "/wallet-configuration",
+      requiresAuth: true,
+      authMessage: "Đăng nhập để thiết lập giới hạn ví.",
+    },
     {
       key: "expense",
       label: "Thêm chi tiêu",
-      sub: "Ghi lại khoản chi mới",
+      sub: "Bước 3: ghi nhận khoản chi",
       icon: "➕",
       tone: "create",
       path: "/expenses",
@@ -67,7 +93,7 @@ const buildQuickActions = (): QuickAction[] => {
     {
       key: "income",
       label: "Thêm thu nhập",
-      sub: "Ghi lại khoản thu mới",
+      sub: "Bước 4: ghi nhận khoản thu",
       icon: "💰",
       tone: "create",
       path: "/incomes",
@@ -81,26 +107,6 @@ const buildQuickActions = (): QuickAction[] => {
       icon: "📋",
       tone: "view",
       path: "/transactions",
-      requiresAuth: false,
-      authMessage: "",
-    },
-    {
-      key: "monthly-plan",
-      label: "Kế hoạch tháng",
-      sub: "Lập & chỉnh sửa plan",
-      icon: "📅",
-      tone: "view",
-      path: "/monthly-plan",
-      requiresAuth: false,
-      authMessage: "",
-    },
-    {
-      key: "wallet",
-      label: "Quản lý ví",
-      sub: "4 ví ngân sách",
-      icon: "👛",
-      tone: "view",
-      path: "/wallet-configuration",
       requiresAuth: false,
       authMessage: "",
     },
@@ -135,6 +141,41 @@ const buildQuickActions = (): QuickAction[] => {
       authMessage: "",
     },
   ];
+
+  const flowKeys = ["plan", "wallet", "expense", "income"];
+  const flowOrder: Record<string, number> = {
+    plan: 0,
+    wallet: 1,
+    expense: 2,
+    income: 3,
+  };
+  const completedFlow: Record<string, boolean> = {
+    plan: setup.hasPlan,
+    wallet: setup.hasWalletLimit,
+    expense: setup.hasExpense,
+    income: setup.hasIncome,
+  };
+
+  all.sort((a, b) => {
+    const aFlow = flowKeys.includes(a.key);
+    const bFlow = flowKeys.includes(b.key);
+
+    if (aFlow && !bFlow) return -1;
+    if (!aFlow && bFlow) return 1;
+
+    if (aFlow && bFlow) {
+      const aDone = completedFlow[a.key];
+      const bDone = completedFlow[b.key];
+      if (aDone !== bDone) {
+        return aDone ? 1 : -1;
+      }
+      return flowOrder[a.key] - flowOrder[b.key];
+    }
+
+    return 0;
+  });
+
+  return all;
 };
 
 const formatCurrency = (
@@ -279,6 +320,8 @@ export default function DashboardPage() {
 
   if (!data) return null;
 
+  const setupState = computeSetupState(data);
+
   const yearOptions = [
     now.year - 1,
     now.year,
@@ -348,6 +391,8 @@ export default function DashboardPage() {
       {isCurrentMonth && (
         <p className="dash-period-tag">Tháng này</p>
       )}
+
+      <SetupProgress state={setupState} />
 
       {error && <div className="dash-error">{error}</div>}
 
@@ -476,7 +521,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="dash-quick-grid">
-          {buildQuickActions().map((action) => {
+          {buildQuickActions(setupState).map((action) => {
             const requiresAuth = action.requiresAuth;
             const disabled =
               requiresAuth && isGuest;
@@ -587,12 +632,58 @@ export default function DashboardPage() {
       </div>
 
       <div className="dash-section">
-        <h2 className="dash-section-title">Ngân sách 4 ví</h2>
-        <div className="dash-wallet-grid">
-          {data.wallets.map((wallet) => (
-            <WalletCard key={wallet.walletType} wallet={wallet} />
-          ))}
+        <div className="dash-section-header">
+          <h2 className="dash-section-title">Ngân sách 4 ví</h2>
+          {data.monthlyPlan && !setupState.hasWalletLimit && (
+            <button
+              className="dash-btn-primary"
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth(
+                    "Đăng nhập để thiết lập giới hạn ví."
+                  );
+                  return;
+                }
+                navigate("/wallet-configuration");
+              }}
+            >
+              Thiết lập giới hạn
+            </button>
+          )}
         </div>
+        {data.wallets.length === 0 ||
+        data.wallets.every((w) => w.limit === 0) ? (
+          <div className="dash-empty-card">
+            <p>
+              Bạn đã có kế hoạch tháng. Bước tiếp theo là thiết lập
+              giới hạn cho từng ví.
+            </p>
+            <button
+              className="dash-btn-primary"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth(
+                    "Đăng nhập để thiết lập giới hạn ví."
+                  );
+                  return;
+                }
+                navigate("/wallet-configuration");
+              }}
+            >
+              Thêm giới hạn ví
+            </button>
+          </div>
+        ) : (
+          <div className="dash-wallet-grid">
+            {data.wallets.map((wallet) => (
+              <WalletCard
+                key={wallet.walletType}
+                wallet={wallet}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="dash-section">
@@ -615,7 +706,23 @@ export default function DashboardPage() {
         </div>
         {data.recentTransactions.length === 0 ? (
           <div className="dash-empty-card">
-            <p>Chưa có giao dịch nào trong tháng này.</p>
+            <p>Bạn chưa có khoản chi tiêu nào.</p>
+            <p className="dash-empty-hint">
+              Bắt đầu bằng cách ghi nhận khoản chi đầu tiên.
+            </p>
+            <button
+              className="dash-btn-primary"
+              style={{ marginTop: 12 }}
+              onClick={() => {
+                if (isGuest) {
+                  requireAuth("Đăng nhập để thêm chi tiêu.");
+                  return;
+                }
+                navigate("/expenses");
+              }}
+            >
+              Thêm chi tiêu
+            </button>
           </div>
         ) : (
           <div className="dash-recent-list">

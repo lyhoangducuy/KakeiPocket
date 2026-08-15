@@ -247,7 +247,23 @@ export default function WalletConfigurationPage() {
       {error && <div className="wc-error">{error}</div>}
 
       {success && (
-        <div className="wc-success">{success}</div>
+        <div className="wc-success-card">
+          <span className="wc-success-icon">✓</span>
+          <div className="wc-success-body">
+            <strong>Đã thiết lập giới hạn ví.</strong>
+            <p>
+              Bước tiếp theo: ghi nhận khoản chi tiêu đầu tiên
+              trong tháng.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="wc-button wc-button-next"
+            onClick={() => navigate("/expenses")}
+          >
+            Thêm chi tiêu →
+          </button>
+        </div>
       )}
 
       {!hasPlan ? (

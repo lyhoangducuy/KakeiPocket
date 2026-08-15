@@ -3,6 +3,7 @@ import {
   useEffect,
   type FormEvent,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   createMonthlyPlan,
@@ -64,6 +65,7 @@ const parseCurrency = (value: string): number => {
 };
 
 export default function MonthlyPlanPage() {
+  const navigate = useNavigate();
   const { isGuest } = useAuth();
   const requireAuth = useRequireAuth();
 
@@ -283,7 +285,23 @@ export default function MonthlyPlanPage() {
       {error && <div className="mp-error">{error}</div>}
 
       {success && (
-        <div className="mp-success">{success}</div>
+        <div className="mp-success-card">
+          <span className="mp-success-icon">✓</span>
+          <div className="mp-success-body">
+            <strong>Đã lưu kế hoạch tháng.</strong>
+            <p>
+              Bước tiếp theo: thiết lập giới hạn chi tiêu cho từng
+              ví trong tháng.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="mp-button mp-button-next"
+            onClick={() => navigate("/wallet-configuration")}
+          >
+            Thiết lập giới hạn ví →
+          </button>
+        </div>
       )}
 
       <form

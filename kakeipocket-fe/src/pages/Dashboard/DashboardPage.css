@@ -758,3 +758,171 @@
     flex: 1;
   }
 }
+.dash-setup-card {
+  background: white;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #eef2f7;
+}
+
+.dash-setup-complete {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border-color: #bbf7d0;
+}
+
+.dash-setup-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.dash-setup-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.dash-setup-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 4px;
+}
+
+.dash-setup-hint {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dash-setup-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.dash-setup-step {
+  margin: 0;
+}
+
+.dash-setup-step-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.dash-setup-step-btn:hover {
+  background: #f3f4f6;
+  border-color: #c7d2fe;
+}
+
+.dash-setup-step-done .dash-setup-step-btn {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.dash-setup-step-current .dash-setup-step-btn {
+  background: linear-gradient(135deg, #eff6ff 0%, #eef2ff 100%);
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.15);
+}
+
+.dash-setup-step-marker {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dash-setup-step-done .dash-setup-step-marker {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.dash-setup-step-current .dash-setup-step-marker {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: white;
+}
+
+.dash-setup-step-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dash-setup-step-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.dash-setup-step-desc {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.dash-setup-step-arrow {
+  color: #9ca3af;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.dash-setup-cta {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dash-setup-cta-hint {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .dash-setup-card {
+    padding: 16px;
+  }
+
+  .dash-setup-step-btn {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .dash-setup-step-label {
+    font-size: 14px;
+  }
+
+  .dash-setup-step-desc {
+    font-size: 12px;
+  }
+}
