@@ -15,7 +15,7 @@ public class WebConfig
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:5173",
-                        "https://kakei-pocket.vercel.app/"
+                        "https://kakei-pocket.vercel.app"
                 )
                 .allowedMethods(
                         "GET",
