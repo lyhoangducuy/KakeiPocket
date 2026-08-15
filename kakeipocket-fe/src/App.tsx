@@ -34,6 +34,7 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import AdminSystemConfigPage from "./pages/admin/AdminSystemConfigPage";
+import AdminExportPage from "./pages/admin/AdminExportPage";
 import LandingPage from "./pages/public/LandingPage";
 
 import NotFoundPage, { ForbiddenPage } from "./pages/NotFoundPage";
@@ -169,6 +170,10 @@ function App() {
             <Route
               path="/admin/system-config"
               element={<AdminSystemConfigPage />}
+            />
+            <Route
+              path="/admin/export"
+              element={<AdminExportPage />}
             />
           </Route>
         </Route>

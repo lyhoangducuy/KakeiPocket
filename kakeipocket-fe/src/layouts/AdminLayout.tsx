@@ -48,7 +48,8 @@ const ADMIN_NAV: AdminNavItem[] = [
     key: "export",
     label: "Xuất báo cáo",
     icon: "📤",
-    badge: "Sắp ra mắt",
+    to: "/admin/export",
+    active: true,
   },
 ];
 
