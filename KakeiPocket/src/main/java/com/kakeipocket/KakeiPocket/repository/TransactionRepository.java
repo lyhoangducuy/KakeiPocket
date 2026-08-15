@@ -255,6 +255,9 @@ public interface TransactionRepository
     @Query("SELECT COUNT(m) FROM MonthlyPlan m WHERE m.user = :user")
     long countMonthlyPlanByUser(@Param("user") User user);
 
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.category.id = :categoryId")
+    long countByCategory(@Param("categoryId") Long categoryId);
+
     @Query(
             "SELECT FUNCTION('YEAR', t.createdAt) AS year, "
                     + "FUNCTION('MONTH', t.createdAt) AS month, "

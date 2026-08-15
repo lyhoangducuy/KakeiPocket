@@ -32,6 +32,9 @@ public class GlobalExceptionHandler {
         if (code == 1015) {
             return HttpStatus.BAD_REQUEST;
         }
+        if (code >= 1017 && code <= 1020) {
+            return HttpStatus.BAD_REQUEST;
+        }
         if (code >= 1001 && code < 1010) {
             return HttpStatus.BAD_REQUEST;
         }

@@ -34,7 +34,8 @@ const ADMIN_NAV: AdminNavItem[] = [
     key: "categories",
     label: "Danh mục hệ thống",
     icon: "🏷️",
-    badge: "Sắp ra mắt",
+    to: "/admin/categories",
+    active: true,
   },
   {
     key: "config",

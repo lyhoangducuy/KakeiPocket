@@ -85,6 +85,26 @@ public enum ErrorCode {
             "This account has been blocked. Please contact administrator."
     ),
 
+    CATEGORY_NOT_FOUND(
+            1017,
+            "Category not found"
+    ),
+
+    CATEGORY_ALREADY_EXISTS(
+            1018,
+            "Category already exists"
+    ),
+
+    CATEGORY_IN_USE(
+            1019,
+            "Category is in use and cannot be deleted"
+    ),
+
+    CATEGORY_TYPE_LOCKED(
+            1020,
+            "Cannot change category type while it is in use"
+    ),
+
     AI_SERVICE_UNAVAILABLE(
             1014,
             "AI service is temporarily unavailable"

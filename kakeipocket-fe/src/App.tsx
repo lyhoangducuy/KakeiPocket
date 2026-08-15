@@ -31,6 +31,7 @@ import ProfilePage from "./pages/user/ProfilePage";
 import UserHomePage from "./pages/user/UserHomePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
 import LandingPage from "./pages/public/LandingPage";
 
 import NotFoundPage, { ForbiddenPage } from "./pages/NotFoundPage";
@@ -157,6 +158,10 @@ function App() {
             <Route
               path="/admin/users"
               element={<AdminUsersPage />}
+            />
+            <Route
+              path="/admin/categories"
+              element={<AdminCategoriesPage />}
             />
           </Route>
         </Route>
