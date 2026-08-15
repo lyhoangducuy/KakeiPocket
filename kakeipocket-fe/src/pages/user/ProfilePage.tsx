@@ -16,7 +16,7 @@ export default function ProfilePage() {
 
         <p>
           <strong>Role:</strong>{" "}
-          {user?.role}
+          {user?.roles}
         </p>
       </div>
     </div>

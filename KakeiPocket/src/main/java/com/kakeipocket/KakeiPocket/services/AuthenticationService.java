@@ -207,7 +207,7 @@ public LoginResponseDTO getCurrentUser(
             HttpSession session,
             String requiredRole) {
 
-        String role = (String) session.getAttribute("role");
+        String role = (String) session.getAttribute("roles");
 
         return requiredRole.equals(role);
     }

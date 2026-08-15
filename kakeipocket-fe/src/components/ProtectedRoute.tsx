@@ -45,7 +45,7 @@ export default function ProtectedRoute({
   // Có giới hạn role
   if (
     allowedRoles &&
-    !allowedRoles.includes(user.role)
+    !allowedRoles.includes(user.roles)
   ) {
     return (
       <Navigate

@@ -15,7 +15,7 @@ export default function UserHomePage() {
       </p>
 
       <p>
-        Role: {user?.role}
+        Role: {user?.roles}
       </p>
 
       <h2>

@@ -219,4 +219,47 @@ public interface TransactionRepository
 
         BigDecimal getTotalAmount();
     }
+
+    // ===========================================================
+    // ADMIN AGGREGATES
+    // ===========================================================
+
+    @Query(
+            "SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t "
+                    + "WHERE t.type = :type"
+    )
+    BigDecimal sumAllByType(
+            @Param("type") TransactionType type
+    );
+
+    @Query("SELECT COUNT(t) FROM Transaction t")
+    long countAll();
+
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.createdAt >= :since")
+    long countCreatedSince(
+            @Param("since") java.time.LocalDateTime since
+    );
+
+    @Query(
+            "SELECT FUNCTION('YEAR', t.createdAt) AS year, "
+                    + "FUNCTION('MONTH', t.createdAt) AS month, "
+                    + "SUM(CASE WHEN t.type = com.kakeipocket.KakeiPocket.enums.TransactionType.INCOME "
+                    + "          THEN t.amount ELSE 0 END) AS income, "
+                    + "SUM(CASE WHEN t.type = com.kakeipocket.KakeiPocket.enums.TransactionType.EXPENSE "
+                    + "          THEN t.amount ELSE 0 END) AS expense "
+                    + "FROM Transaction t "
+                    + "WHERE t.createdAt >= :since "
+                    + "GROUP BY FUNCTION('YEAR', t.createdAt), FUNCTION('MONTH', t.createdAt) "
+                    + "ORDER BY FUNCTION('YEAR', t.createdAt), FUNCTION('MONTH', t.createdAt)"
+    )
+    List<MonthlyTypeAggregate> aggregateMonthlyByType(
+            @Param("since") java.time.LocalDateTime since
+    );
+
+    interface MonthlyTypeAggregate {
+        Integer getYear();
+        Integer getMonth();
+        BigDecimal getIncome();
+        BigDecimal getExpense();
+    }
 }

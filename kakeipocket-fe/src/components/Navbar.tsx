@@ -152,9 +152,9 @@ export default function Navbar() {
                       <span className="nav-user-dropdown-email">
                         Tài khoản đã đăng nhập
                       </span>
-                      {user?.role && (
+                      {user?.roles && (
                         <span className="nav-user-dropdown-role">
-                          {user.role}
+                          {user.roles}
                         </span>
                       )}
                     </div>

@@ -70,8 +70,13 @@ public enum ErrorCode {
             "User is not authenticated"
     ),
 
-    AI_SERVICE_UNAVAILABLE(
+    FORBIDDEN(
             1013,
+            "You do not have permission to access this resource"
+    ),
+
+    AI_SERVICE_UNAVAILABLE(
+            1014,
             "AI service is temporarily unavailable"
     );
 

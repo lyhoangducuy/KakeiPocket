@@ -9,6 +9,7 @@ import {
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import MainLayout from "./layouts/MainLayout";
+import AdminLayout from "./layouts/AdminLayout";
 
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
@@ -29,7 +30,6 @@ import AiFinancialPage from "./pages/AiFinancial/AiFinancialPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import UserHomePage from "./pages/user/UserHomePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
-
 import LandingPage from "./pages/public/LandingPage";
 
 import NotFoundPage, { ForbiddenPage } from "./pages/NotFoundPage";
@@ -144,8 +144,15 @@ function App() {
 
         {/* ADMIN */}
         <Route element={<AdminRoute />}>
-          <Route element={<MainLayout />}>
-            <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route element={<AdminLayout />}>
+            <Route
+              path="/admin"
+              element={<Navigate to="/admin/dashboard" replace />}
+            />
+            <Route
+              path="/admin/dashboard"
+              element={<AdminDashboardPage />}
+            />
           </Route>
         </Route>
 

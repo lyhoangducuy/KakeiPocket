@@ -98,7 +98,7 @@ export function AuthProvider({ children }: Props) {
 
   const isAuthenticated = user !== null;
   const isGuest = !isAuthenticated && !loading;
-  const isAdmin = user?.role === "ADMIN";
+  const isAdmin = user?.roles === "ADMIN";
 
   return (
     <AuthContext.Provider

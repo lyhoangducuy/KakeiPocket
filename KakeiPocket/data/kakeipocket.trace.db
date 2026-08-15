@@ -34,3 +34,6 @@ Caused by: java.lang.AssertionError: 17
 	at org.h2.mvstore.FileStore.executeFileStoreOperation(FileStore.java:1894)
 	at org.h2.mvstore.MVStore.executeFilestoreOperation(MVStore.java:1044)
 	... 13 more
+2026-08-15 10:53:53.294821+07:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "roles""users" not found; SQL statement:
+SELECT * FROM "roles""users" [42102-240]
