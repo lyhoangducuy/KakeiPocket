@@ -1,0 +1,67 @@
+.cswa-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.cswa-select {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.cswa-select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.cswa-select:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+.cswa-add-btn {
+  width: 40px;
+  height: auto;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.cswa-add-btn:hover:not(:disabled) {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.cswa-add-btn:disabled {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 420px) {
+  .cswa-add-btn {
+    width: 36px;
+    font-size: 18px;
+  }
+}

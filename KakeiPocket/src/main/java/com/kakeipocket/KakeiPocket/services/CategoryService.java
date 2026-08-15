@@ -6,6 +6,7 @@ import com.kakeipocket.KakeiPocket.dto.Category.UpdateCategoryRequest;
 import com.kakeipocket.KakeiPocket.entity.Category;
 import com.kakeipocket.KakeiPocket.entity.User;
 import com.kakeipocket.KakeiPocket.enums.TransactionType;
+import com.kakeipocket.KakeiPocket.repository.AuthenticationRepository;
 import com.kakeipocket.KakeiPocket.repository.CategoryRepository;
 import com.kakeipocket.KakeiPocket.repository.UserRepository;
 
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +24,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoryService {
 
+    private static final String SYSTEM_ADMIN_EMAIL =
+            "system-admin@kakeipocket.local";
+
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final AuthenticationRepository authenticationRepository;
 
     private static final DateTimeFormatter DATE_FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -30,8 +37,14 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryResponse> getAllCategories(Long userId) {
         User user = getUser(userId);
-        List<Category> categories = categoryRepository.findByUser(user);
-        return categories.stream()
+        List<Category> userCategories =
+                categoryRepository.findByUser(user);
+        List<Category> systemCategories =
+                getSystemDefaultCategories();
+        List<Category> merged = new ArrayList<>();
+        merged.addAll(systemCategories);
+        merged.addAll(userCategories);
+        return merged.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -42,8 +55,24 @@ public class CategoryService {
             TransactionType type
     ) {
         User user = getUser(userId);
-        List<Category> categories = categoryRepository.findByUserAndType(user, type);
-        return categories.stream()
+
+        List<Category> userCategories = categoryRepository
+                .findByUserAndType(user, type);
+        List<Category> systemCategories =
+                getSystemDefaultCategoriesByType(type);
+
+        List<Category> merged = new ArrayList<>();
+        merged.addAll(systemCategories);
+        merged.addAll(userCategories);
+        merged.sort(Comparator
+                .comparing(
+                    (Category c) -> c.getType() == null
+                            ? "" : c.getType().name())
+                .thenComparing(
+                    Category::getName,
+                    Comparator.nullsLast(String::compareToIgnoreCase)));
+
+        return merged.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
@@ -123,6 +152,28 @@ public class CategoryService {
     private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    private List<Category> getSystemDefaultCategories() {
+        return authenticationRepository
+                .findByEmail(SYSTEM_ADMIN_EMAIL)
+                .map(user -> categoryRepository.findSystemCategories(
+                        user.getId()))
+                .orElse(List.of());
+    }
+
+    private List<Category> getSystemDefaultCategoriesByType(
+            TransactionType type
+    ) {
+        return authenticationRepository
+                .findByEmail(SYSTEM_ADMIN_EMAIL)
+                .map(systemUser ->
+                        categoryRepository
+                                .findSystemCategories(systemUser.getId())
+                                .stream()
+                                .filter(c -> c.getType() == type)
+                                .toList())
+                .orElse(List.of());
     }
 
     private CategoryResponse toResponse(Category category) {

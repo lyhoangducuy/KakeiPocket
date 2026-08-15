@@ -235,14 +235,19 @@ public class TransactionService {
 
     private Category getExpenseCategoryOwnedBy(User user, Long categoryId) {
         Category category = categoryRepository
-                .findByIdAndUser(categoryId, user)
+                .findById(categoryId)
                 .orElseThrow(() -> new RuntimeException(
-                        "Danh mục không tồn tại hoặc không thuộc về bạn"
-                ));
+                        "Danh mục không tồn tại"));
 
         if (category.getType() != TransactionType.EXPENSE) {
             throw new RuntimeException(
                     "Danh mục phải là loại Chi tiêu (EXPENSE)"
+            );
+        }
+
+        if (!isCategoryAccessibleBy(category, user)) {
+            throw new RuntimeException(
+                    "Danh mục không thuộc về bạn"
             );
         }
 
@@ -251,10 +256,9 @@ public class TransactionService {
 
     private Category getIncomeCategoryOwnedBy(User user, Long categoryId) {
         Category category = categoryRepository
-                .findByIdAndUser(categoryId, user)
+                .findById(categoryId)
                 .orElseThrow(() -> new RuntimeException(
-                        "Danh mục không tồn tại hoặc không thuộc về bạn"
-                ));
+                        "Danh mục không tồn tại"));
 
         if (category.getType() != TransactionType.INCOME) {
             throw new RuntimeException(
@@ -262,7 +266,30 @@ public class TransactionService {
             );
         }
 
+        if (!isCategoryAccessibleBy(category, user)) {
+            throw new RuntimeException(
+                    "Danh mục không thuộc về bạn"
+            );
+        }
+
         return category;
+    }
+
+    /**
+     * A category is accessible by the user when either:
+     * - it belongs to that user directly, OR
+     * - it is a system default category (isDefault=true).
+     */
+    private boolean isCategoryAccessibleBy(
+            Category category, User user
+    ) {
+        if (category.getUser() == null) {
+            return false;
+        }
+        if (category.getUser().getId().equals(user.getId())) {
+            return true;
+        }
+        return Boolean.TRUE.equals(category.getIsDefault());
     }
 
     private MonthlyPlan findMonthlyPlanByDate(User user, LocalDate date) {

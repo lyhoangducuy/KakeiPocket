@@ -12,6 +12,8 @@ import {
   deleteTransaction,
 } from "../../api/transactionApi";
 
+import CategorySelectWithAdd from "../../components/CategorySelectWithAdd";
+
 import { useAuth } from "../../context/AuthContext";
 import { useRequireAuth } from "../../components/LoginRequiredProvider";
 
@@ -372,24 +374,18 @@ export default function IncomePage() {
         <form onSubmit={handleSubmit}>
           <div className="inc-field">
             <label className="inc-label">Danh mục</label>
-            <select
-              className="inc-select"
+            <CategorySelectWithAdd
+              categories={categories}
               value={formData.categoryId}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  categoryId: e.target.value,
-                })
+              onChange={(v) =>
+                setFormData({ ...formData, categoryId: v })
               }
+              type="INCOME"
               disabled={isGuest}
-            >
-              <option value="">-- Chọn danh mục --</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+              onCategoryCreated={(cat) =>
+                setCategories((prev) => [...prev, cat])
+              }
+            />
           </div>
 
           <div className="inc-row">
