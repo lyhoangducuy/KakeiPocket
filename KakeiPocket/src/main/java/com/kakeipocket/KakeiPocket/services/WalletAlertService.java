@@ -4,6 +4,7 @@ import com.kakeipocket.KakeiPocket.config.AppException;
 import com.kakeipocket.KakeiPocket.dto.WalletAlert.WalletAlertResponse;
 import com.kakeipocket.KakeiPocket.dto.WalletAlert.WalletAlertSummaryResponse;
 import com.kakeipocket.KakeiPocket.entity.MonthlyPlan;
+import com.kakeipocket.KakeiPocket.entity.SystemConfig;
 import com.kakeipocket.KakeiPocket.entity.User;
 import com.kakeipocket.KakeiPocket.entity.WalletLimit;
 import com.kakeipocket.KakeiPocket.enums.ErrorCode;
@@ -11,6 +12,7 @@ import com.kakeipocket.KakeiPocket.enums.TransactionType;
 import com.kakeipocket.KakeiPocket.enums.WalletAlertStatus;
 import com.kakeipocket.KakeiPocket.enums.WalletType;
 import com.kakeipocket.KakeiPocket.repository.MonthlyPlanRepository;
+import com.kakeipocket.KakeiPocket.repository.SystemConfigRepository;
 import com.kakeipocket.KakeiPocket.repository.TransactionRepository;
 import com.kakeipocket.KakeiPocket.repository.UserRepository;
 import com.kakeipocket.KakeiPocket.repository.WalletLimitRepository;
@@ -35,12 +37,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WalletAlertService {
 
-    private static final double WARNING_THRESHOLD = 80.0;
-    private static final double EXCEEDED_THRESHOLD = 100.0;
     private static final int MIN_MONTH = 1;
     private static final int MAX_MONTH = 12;
     private static final int MIN_YEAR = 1970;
     private static final int MAX_YEAR = 9999;
+
+    private static final int DEFAULT_WARNING_THRESHOLD = 80;
+    private static final int DEFAULT_DANGER_THRESHOLD = 100;
 
     private static final List<WalletType> ALERT_WALLET_TYPES = Arrays.asList(
             WalletType.NECESSARY,
@@ -53,6 +56,7 @@ public class WalletAlertService {
     private final MonthlyPlanRepository monthlyPlanRepository;
     private final WalletLimitRepository walletLimitRepository;
     private final UserRepository userRepository;
+    private final SystemConfigRepository systemConfigRepository;
 
     @Transactional(readOnly = true)
     public WalletAlertSummaryResponse getWalletAlerts(
@@ -170,13 +174,34 @@ public class WalletAlertService {
                 .divide(limit, 4, RoundingMode.HALF_UP);
 
         double pct = ratio.doubleValue();
-        if (pct >= EXCEEDED_THRESHOLD) {
+        int[] thresholds = getActiveThresholds();
+        int dangerThreshold = thresholds[1];
+        int warningThreshold = thresholds[0];
+
+        if (pct >= dangerThreshold) {
             return WalletAlertStatus.EXCEEDED;
         }
-        if (pct >= WARNING_THRESHOLD) {
+        if (pct >= warningThreshold) {
             return WalletAlertStatus.WARNING;
         }
         return WalletAlertStatus.NORMAL;
+    }
+
+    private int[] getActiveThresholds() {
+        return systemConfigRepository
+                .findFirstByOrderByIdAsc()
+                .map(cfg -> new int[]{
+                        cfg.getWarningThreshold() != null
+                                ? cfg.getWarningThreshold()
+                                : DEFAULT_WARNING_THRESHOLD,
+                        cfg.getDangerThreshold() != null
+                                ? cfg.getDangerThreshold()
+                                : DEFAULT_DANGER_THRESHOLD
+                })
+                .orElseGet(() -> new int[]{
+                        DEFAULT_WARNING_THRESHOLD,
+                        DEFAULT_DANGER_THRESHOLD
+                });
     }
 
     private BigDecimal calculatePercentage(

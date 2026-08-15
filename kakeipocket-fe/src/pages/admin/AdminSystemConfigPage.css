@@ -1,0 +1,278 @@
+/* ============================================
+   Admin System Config Page
+============================================ */
+
+.admin-sys-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.admin-sys-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.admin-sys-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.admin-sys-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ---------- Loading / Error states ---------- */
+.admin-sys-loading {
+  padding: 60px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-sys-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: admin-sys-spin 0.8s linear infinite;
+}
+
+@keyframes admin-sys-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.admin-sys-state {
+  padding: 40px 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.admin-sys-error {
+  color: #b91c1c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- Card ---------- */
+.admin-sys-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-sys-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.admin-sys-card-title-spaced {
+  margin-top: 6px;
+}
+
+.admin-sys-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-sys-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-sys-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.admin-sys-input {
+  padding: 11px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.admin-sys-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.admin-sys-input:disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+.admin-sys-hint {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ---------- Validation / status ---------- */
+.admin-sys-validation-error {
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.admin-sys-success {
+  padding: 10px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+/* ---------- Preview ---------- */
+.admin-sys-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.admin-sys-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-sys-preview-icon {
+  font-size: 22px;
+}
+
+.admin-sys-preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-sys-preview-text strong {
+  font-size: 14px;
+  color: #0f172a;
+}
+
+.admin-sys-preview-text span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.admin-sys-preview-normal {
+  border-left: 4px solid #10b981;
+}
+
+.admin-sys-preview-warning {
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-sys-preview-danger {
+  border-left: 4px solid #dc2626;
+}
+
+/* ---------- Actions ---------- */
+.admin-sys-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 4px;
+  padding-top: 16px;
+}
+
+.admin-sys-btn-primary,
+.admin-sys-btn-secondary {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.admin-sys-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.admin-sys-btn-primary:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.admin-sys-btn-secondary {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.admin-sys-btn-secondary:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.admin-sys-btn-primary:disabled,
+.admin-sys-btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-sys-btn-primary:active:not(:disabled),
+.admin-sys-btn-secondary:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .admin-sys-title {
+    font-size: 20px;
+  }
+  .admin-sys-card {
+    padding: 20px 18px;
+  }
+  .admin-sys-grid {
+    grid-template-columns: 1fr;
+  }
+}

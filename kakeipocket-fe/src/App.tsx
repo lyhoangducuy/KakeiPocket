@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { SystemConfigProvider } from "./context/SystemConfigContext";
 
 import MainLayout from "./layouts/MainLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -32,6 +33,7 @@ import UserHomePage from "./pages/user/UserHomePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminCategoriesPage from "./pages/admin/AdminCategoriesPage";
+import AdminSystemConfigPage from "./pages/admin/AdminSystemConfigPage";
 import LandingPage from "./pages/public/LandingPage";
 
 import NotFoundPage, { ForbiddenPage } from "./pages/NotFoundPage";
@@ -104,7 +106,8 @@ function AdminRoute() {
 function App() {
   return (
     <AuthProvider>
-      <Routes>
+      <SystemConfigProvider>
+        <Routes>
         {/* PUBLIC */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -163,6 +166,10 @@ function App() {
               path="/admin/categories"
               element={<AdminCategoriesPage />}
             />
+            <Route
+              path="/admin/system-config"
+              element={<AdminSystemConfigPage />}
+            />
           </Route>
         </Route>
 
@@ -170,6 +177,7 @@ function App() {
         <Route path="/403" element={<ForbiddenPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </SystemConfigProvider>
     </AuthProvider>
   );
 }

@@ -6,6 +6,7 @@ import { getWalletAlerts } from "../../api/walletAlertApi";
 import WalletAlertCard from "../../components/WalletAlertCard";
 
 import { useAuth } from "../../context/AuthContext";
+import { useSystemConfig } from "../../context/SystemConfigContext";
 import { useRequireAuth } from "../../components/LoginRequiredProvider";
 
 import { demoWalletAlerts } from "../../demo/walletAlertDemo";
@@ -31,6 +32,7 @@ const getCurrentMonth = () => {
 export default function WalletAlertsPage() {
   const navigate = useNavigate();
   const { isGuest } = useAuth();
+  const { warningThreshold, dangerThreshold } = useSystemConfig();
   const requireAuth = useRequireAuth();
   const now = getCurrentMonth();
 
@@ -225,14 +227,18 @@ export default function WalletAlertsPage() {
           <span className="wa-summary-value">
             {warningWallets.length}
           </span>
-          <span className="wa-summary-hint">≥ 80%</span>
+          <span className="wa-summary-hint">
+            ≥ {warningThreshold}%
+          </span>
         </div>
         <div className="wa-summary-card wa-summary-exceeded">
           <span className="wa-summary-label">Đã vượt</span>
           <span className="wa-summary-value">
             {exceededWallets.length}
           </span>
-          <span className="wa-summary-hint">≥ 100%</span>
+          <span className="wa-summary-hint">
+            ≥ {dangerThreshold}%
+          </span>
         </div>
         <div className="wa-summary-card wa-summary-normal">
           <span className="wa-summary-label">An toàn</span>
@@ -240,7 +246,7 @@ export default function WalletAlertsPage() {
             {normalWallets.length}
           </span>
           <span className="wa-summary-hint">
-            &lt; 80%
+            &lt; {warningThreshold}%
           </span>
         </div>
       </div>

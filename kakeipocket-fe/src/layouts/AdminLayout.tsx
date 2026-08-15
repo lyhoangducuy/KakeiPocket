@@ -41,7 +41,8 @@ const ADMIN_NAV: AdminNavItem[] = [
     key: "config",
     label: "Cấu hình",
     icon: "⚙️",
-    badge: "Sắp ra mắt",
+    to: "/admin/system-config",
+    active: true,
   },
   {
     key: "export",

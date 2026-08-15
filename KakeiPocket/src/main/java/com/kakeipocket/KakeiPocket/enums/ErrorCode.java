@@ -105,6 +105,11 @@ public enum ErrorCode {
             "Cannot change category type while it is in use"
     ),
 
+    INVALID_THRESHOLD(
+            1021,
+            "Invalid threshold values"
+    ),
+
     AI_SERVICE_UNAVAILABLE(
             1014,
             "AI service is temporarily unavailable"
