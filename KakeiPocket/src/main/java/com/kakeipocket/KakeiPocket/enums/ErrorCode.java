@@ -75,6 +75,16 @@ public enum ErrorCode {
             "You do not have permission to access this resource"
     ),
 
+    CANNOT_LOCK_SELF(
+            1015,
+            "Cannot lock the currently logged-in administrator account"
+    ),
+
+    ACCOUNT_BLOCKED(
+            1016,
+            "This account has been blocked. Please contact administrator."
+    ),
+
     AI_SERVICE_UNAVAILABLE(
             1014,
             "AI service is temporarily unavailable"

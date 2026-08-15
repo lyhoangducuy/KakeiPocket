@@ -29,6 +29,9 @@ public class GlobalExceptionHandler {
         if (code == 1013) {
             return HttpStatus.FORBIDDEN;
         }
+        if (code == 1015) {
+            return HttpStatus.BAD_REQUEST;
+        }
         if (code >= 1001 && code < 1010) {
             return HttpStatus.BAD_REQUEST;
         }

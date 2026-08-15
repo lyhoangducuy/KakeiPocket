@@ -86,6 +86,13 @@ public class AuthenticationService {
                     ErrorCode.USERNAME_OR_PASSWORD_INVALID);
         }
 
+        // Khóa tài khoản BLOCKED không được login
+        if (user.getStatus() != null
+                && user.getStatus() == com.kakeipocket.KakeiPocket.enums.UserStatus.BLOCKED) {
+            throw new AppException(
+                    ErrorCode.ACCOUNT_BLOCKED);
+        }
+
         // Lấy role name
         String roles = user.getRole().getName();
 

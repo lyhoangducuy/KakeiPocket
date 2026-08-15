@@ -27,7 +27,8 @@ const ADMIN_NAV: AdminNavItem[] = [
     key: "users",
     label: "Người dùng",
     icon: "👥",
-    badge: "Sắp ra mắt",
+    to: "/admin/users",
+    active: true,
   },
   {
     key: "categories",

@@ -240,6 +240,21 @@ public interface TransactionRepository
             @Param("since") java.time.LocalDateTime since
     );
 
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.user = :user")
+    long countByUser(@Param("user") User user);
+
+    @Query(
+            "SELECT COALESCE(SUM(t.amount), 0) FROM Transaction t "
+                    + "WHERE t.user = :user AND t.type = :type"
+    )
+    BigDecimal sumByUserAndType(
+            @Param("user") User user,
+            @Param("type") TransactionType type
+    );
+
+    @Query("SELECT COUNT(m) FROM MonthlyPlan m WHERE m.user = :user")
+    long countMonthlyPlanByUser(@Param("user") User user);
+
     @Query(
             "SELECT FUNCTION('YEAR', t.createdAt) AS year, "
                     + "FUNCTION('MONTH', t.createdAt) AS month, "
