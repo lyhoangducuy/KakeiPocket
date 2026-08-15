@@ -489,3 +489,24 @@
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 480px) {
+  .stat-title {
+    font-size: 20px;
+  }
+  .stat-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+  .stat-section-card {
+    padding: 16px;
+  }
+  .stat-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .stat-section-title {
+    font-size: 16px;
+  }
+  .stat-chart-svg {
+    max-height: 200px;
+  }
+}

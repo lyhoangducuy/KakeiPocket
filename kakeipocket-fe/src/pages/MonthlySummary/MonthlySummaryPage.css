@@ -523,3 +523,27 @@
     align-items: flex-start;
   }
 }
+@media (max-width: 480px) {
+  .ms-title {
+    font-size: 20px;
+  }
+  .ms-subtitle {
+    font-size: 14px;
+  }
+  .ms-overview-card {
+    padding: 14px;
+  }
+  .ms-highlight-card {
+    padding: 14px;
+  }
+  .ms-highlight-value {
+    font-size: 20px;
+  }
+  .ms-section-card {
+    padding: 16px;
+  }
+  .ms-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

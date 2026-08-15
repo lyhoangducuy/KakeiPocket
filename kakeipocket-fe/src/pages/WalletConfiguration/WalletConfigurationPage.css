@@ -408,3 +408,30 @@
     width: 100%;
   }
 }
+
+@media (max-width: 768px) {
+  .wc-page {
+    padding: 0 4px;
+  }
+  .wc-title {
+    font-size: 24px;
+  }
+  .wc-grid {
+    grid-template-columns: 1fr;
+  }
+  .wc-card {
+    padding: 16px;
+  }
+  .wc-summary {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .wc-title {
+    font-size: 20px;
+  }
+  .wc-no-plan {
+    padding: 24px 16px;
+  }
+}

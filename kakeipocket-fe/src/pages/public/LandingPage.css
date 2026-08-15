@@ -1,6 +1,13 @@
 .lp-page {
   background: #ffffff;
   color: #0f172a;
+  font-family: var(--font-sans);
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.lp-page * {
+  font-family: inherit;
 }
 
 /* =========================
@@ -410,12 +417,10 @@
 }
 
 /* =========================
-   RESPONSIVE
+   RESPONSIVE — mobile-first fixes
 ========================= */
-@media (max-width: 900px) {
-  .lp-title {
-    font-size: 36px;
-  }
+
+@media (max-width: 1100px) {
   .lp-features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -425,9 +430,53 @@
   }
 }
 
+@media (max-width: 900px) {
+  .lp-title {
+    font-size: 40px;
+  }
+  .lp-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lp-section-title {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lp-hero {
+    padding: 64px 24px 56px;
+  }
+  .lp-title {
+    font-size: 34px;
+  }
+  .lp-subtitle {
+    font-size: 17px;
+  }
+  .lp-section {
+    padding: 56px 24px;
+  }
+  .lp-features-grid {
+    grid-template-columns: 1fr;
+  }
+  .lp-preview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lp-wallet-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lp-cta-title {
+    font-size: 28px;
+  }
+  .lp-btn-primary,
+  .lp-btn-secondary {
+    padding: 12px 22px;
+    font-size: 15px;
+  }
+}
+
 @media (max-width: 600px) {
   .lp-hero {
-    padding: 60px 20px 48px;
+    padding: 56px 20px 48px;
   }
   .lp-title {
     font-size: 28px;
@@ -439,10 +488,22 @@
     padding: 48px 20px;
   }
   .lp-section-title {
-    font-size: 26px;
+    font-size: 24px;
   }
-  .lp-features-grid {
-    grid-template-columns: 1fr;
+  .lp-section-lead {
+    font-size: 15px;
+  }
+  .lp-eyebrow {
+    font-size: 13px;
+    padding: 5px 12px;
+  }
+  .lp-hero-cta {
+    flex-direction: column;
+    width: 100%;
+  }
+  .lp-hero-cta .lp-btn-primary,
+  .lp-hero-cta .lp-btn-secondary {
+    width: 100%;
   }
   .lp-preview-grid,
   .lp-wallet-grid {
@@ -450,5 +511,44 @@
   }
   .lp-cta-title {
     font-size: 24px;
+  }
+  .lp-cta-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .lp-cta-actions .lp-btn-primary {
+    width: 100%;
+  }
+  .lp-footer {
+    padding: 24px 20px;
+  }
+  .lp-footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 4px;
+  }
+  .lp-ai-card {
+    padding: 20px;
+  }
+  .lp-feature-card {
+    padding: 22px 20px;
+  }
+}
+
+@media (max-width: 420px) {
+  .lp-title {
+    font-size: 24px;
+  }
+  .lp-preview-grid,
+  .lp-wallet-grid {
+    grid-template-columns: 1fr;
+  }
+  .lp-feature-icon,
+  .lp-preview-icon,
+  .lp-wallet-icon {
+    font-size: 28px;
+  }
+  .lp-cta-title {
+    font-size: 22px;
   }
 }

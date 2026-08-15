@@ -926,3 +926,72 @@
     font-size: 12px;
   }
 }
+
+@media (max-width: 768px) {
+  .dash-page {
+    padding: 0 8px;
+  }
+  .dash-header {
+    gap: 12px;
+  }
+  .dash-month-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .dash-kpi-value {
+    font-size: 22px;
+  }
+  .dash-plan-card {
+    padding: 14px;
+  }
+  .dash-quick-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-title {
+    font-size: 20px;
+  }
+  .dash-wallet-grid {
+    grid-template-columns: 1fr;
+  }
+  .dash-quick-grid {
+    grid-template-columns: 1fr;
+  }
+  .dash-quick-tile {
+    padding: 14px;
+  }
+  .dash-setup-card {
+    padding: 16px;
+  }
+  .dash-setup-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dash-setup-steps {
+    gap: 6px;
+  }
+  .dash-setup-step-btn {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .dash-setup-step-label {
+    font-size: 14px;
+  }
+  .dash-setup-step-desc {
+    font-size: 12px;
+  }
+  .dash-kpi-card {
+    padding: 14px;
+  }
+  .dash-kpi-value {
+    font-size: 20px;
+  }
+  .dash-recent-item {
+    padding: 10px 12px;
+  }
+  .dash-recent-amount {
+    font-size: 14px;
+  }
+}

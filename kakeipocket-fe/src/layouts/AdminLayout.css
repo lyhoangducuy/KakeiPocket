@@ -277,3 +277,27 @@
     padding: 16px;
   }
 }
+
+@media (max-width: 480px) {
+  .admin-topbar {
+    padding: 12px 12px;
+  }
+  .admin-topbar-title h1 {
+    font-size: 16px;
+  }
+  .admin-topbar-title span {
+    font-size: 11px;
+  }
+  .admin-content {
+    padding: 12px;
+  }
+  .admin-sidebar {
+    width: 240px;
+  }
+  .admin-sidebar-header {
+    padding: 16px 14px;
+  }
+  .admin-user-email {
+    max-width: 140px;
+  }
+}

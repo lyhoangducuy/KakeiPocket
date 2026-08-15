@@ -436,3 +436,30 @@
     align-items: flex-start;
   }
 }
+@media (max-width: 900px) {
+  .ai-page {
+    padding: 0 8px;
+  }
+  .ai-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-title {
+    font-size: 18px;
+  }
+  .ai-card {
+    padding: 14px;
+  }
+  .ai-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ai-prompt-input {
+    font-size: 14px;
+  }
+  .ai-suggestion {
+    padding: 10px 12px;
+  }
+}

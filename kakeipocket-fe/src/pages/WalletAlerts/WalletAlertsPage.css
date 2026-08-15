@@ -290,3 +290,18 @@
     grid-template-columns: 1fr;
   }
 }
+@media (max-width: 480px) {
+  .wa-title {
+    font-size: 20px;
+  }
+  .wa-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .wa-card {
+    padding: 14px;
+  }
+  .wa-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

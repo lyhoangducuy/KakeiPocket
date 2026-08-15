@@ -397,3 +397,34 @@
     width: 100%;
   }
 }
+
+@media (max-width: 768px) {
+  .mp-page {
+    padding: 0 4px;
+  }
+  .mp-title {
+    font-size: 24px;
+  }
+  .mp-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .mp-section {
+    padding: 20px 16px;
+  }
+  .mp-summary {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .mp-title {
+    font-size: 20px;
+  }
+  .mp-section {
+    padding: 16px 14px;
+  }
+  .mp-input {
+    font-size: 14px;
+  }
+}

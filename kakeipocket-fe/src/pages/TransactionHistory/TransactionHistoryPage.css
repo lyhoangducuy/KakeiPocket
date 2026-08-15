@@ -549,3 +549,68 @@
     max-width: 100%;
   }
 }
+@media (max-width: 900px) {
+  .hist-filter-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .hist-page {
+    padding: 0 4px;
+  }
+  .hist-title {
+    font-size: 24px;
+  }
+  .hist-summary-card {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .hist-row {
+    grid-template-columns: 1fr;
+  }
+  .hist-filters-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hist-title {
+    font-size: 20px;
+  }
+  .hist-type-tabs {
+    flex-wrap: wrap;
+  }
+  .hist-type-tab {
+    flex: 1 1 auto;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .hist-item {
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+  .hist-item-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .hist-modal-overlay {
+    padding: 16px;
+  }
+  .hist-modal {
+    padding: 18px;
+  }
+  .hist-modal-actions {
+    flex-direction: column-reverse;
+  }
+  .hist-modal-actions button {
+    width: 100%;
+  }
+  .hist-empty-actions {
+    flex-direction: column;
+  }
+  .hist-empty-actions button {
+    width: 100%;
+  }
+}
