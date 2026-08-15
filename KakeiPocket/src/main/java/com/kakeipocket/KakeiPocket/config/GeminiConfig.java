@@ -36,7 +36,7 @@ public class GeminiConfig {
 
     public static class GeminiProperties {
         private String apiKey = "";
-        private String model = "gemini-1.5-flash";
+        private String model = "gemini-3.6-flash";
         private String baseUrl = "https://generativelanguage.googleapis.com/v1beta";
         private int timeoutSeconds = 25;
 

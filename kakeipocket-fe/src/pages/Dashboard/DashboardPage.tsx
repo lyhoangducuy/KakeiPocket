@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getDashboard } from "../../api/dashboardApi";
 import { getWalletAlerts } from "../../api/walletAlertApi";
+import { getCategories } from "../../api/categoryApi";
 
 import WalletAlertCard from "../../components/WalletAlertCard";
 import SetupProgress, {
@@ -21,9 +22,12 @@ import type {
   DashboardResponse,
   WalletSummary,
 } from "../../types/dashboard";
+import type { Category } from "../../types/category";
 import type { WalletAlertSummary } from "../../types/walletAlert";
 import { WALLET_OPTIONS } from "../../types/transaction";
 import type { WalletType } from "../../types/transaction";
+
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 import "./DashboardPage.css";
 
@@ -231,6 +235,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [alerts, setAlerts] =
     useState<WalletAlertSummary | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -244,17 +249,22 @@ export default function DashboardPage() {
     if (isGuest) {
       setData(demoDashboard);
       setAlerts(demoWalletAlerts);
+      setCategories(demoCategories);
       setLoading(false);
       return;
     }
 
     try {
-      const [dashboardData, alertsData] = await Promise.all([
-        getDashboard(targetYear, targetMonth),
-        getWalletAlerts(targetYear, targetMonth),
-      ]);
+      const [dashboardData, alertsData, expenseCats, incomeCats] =
+        await Promise.all([
+          getDashboard(targetYear, targetMonth),
+          getWalletAlerts(targetYear, targetMonth),
+          getCategories("EXPENSE"),
+          getCategories("INCOME"),
+        ]);
       setData(dashboardData);
       setAlerts(alertsData);
+      setCategories([...expenseCats, ...incomeCats]);
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -727,38 +737,30 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="dash-recent-list">
-            {data.recentTransactions.map((tx) => {
-              const catIcon =
-                tx.categoryId != null
-                  ? demoCategories.find((c) => c.id === tx.categoryId)?.icon
-                  : null;
-              const fallback =
-                tx.type === "EXPENSE" ? "💸" : "💰";
-              return (
-                <div
-                  key={tx.id}
-                  className="dash-recent-item"
-                >
-                  <span className="dash-recent-icon">
-                    {catIcon ?? fallback}
+            {data.recentTransactions.map((tx) => (
+              <div
+                key={tx.id}
+                className="dash-recent-item"
+              >
+                <span className="dash-recent-icon">
+                  {getCategoryIcon(tx, categories)}
+                </span>
+                <div className="dash-recent-info">
+                  <span className="dash-recent-category">
+                    {tx.categoryName ?? "—"}
                   </span>
-                  <div className="dash-recent-info">
-                    <span className="dash-recent-category">
-                      {tx.categoryName ?? "—"}
-                    </span>
-                    <span className="dash-recent-date">
-                      {formatDate(tx.transactionDate)}
-                    </span>
-                  </div>
-                  <span
-                    className={`dash-recent-amount ${tx.type === "EXPENSE" ? "dash-amount-expense" : "dash-amount-income"}`}
-                  >
-                    {tx.type === "EXPENSE" ? "-" : "+"}
-                    {formatCurrency(tx.amount)} ₫
+                  <span className="dash-recent-date">
+                    {formatDate(tx.transactionDate)}
                   </span>
                 </div>
-              );
-            })}
+                <span
+                  className={`dash-recent-amount ${tx.type === "EXPENSE" ? "dash-amount-expense" : "dash-amount-income"}`}
+                >
+                  {tx.type === "EXPENSE" ? "-" : "+"}
+                  {formatCurrency(tx.amount)} ₫
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -787,7 +789,14 @@ export default function DashboardPage() {
                 >
                   <div className="dash-top-info">
                     <span className="dash-top-icon">
-                      {cat.categoryIcon ?? "💸"}
+                      {cat.categoryIcon ??
+                        getCategoryIcon(
+                          {
+                            type: "EXPENSE",
+                            categoryId: cat.categoryId,
+                          },
+                          categories
+                        )}
                     </span>
                     <div className="dash-top-text">
                       <span className="dash-top-name">

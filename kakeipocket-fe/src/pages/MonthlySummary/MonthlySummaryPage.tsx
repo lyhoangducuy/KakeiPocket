@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getMonthlySummary } from "../../api/monthlySummaryApi";
+import { getCategories } from "../../api/categoryApi";
 
 import WalletAlertCard from "../../components/WalletAlertCard";
 import { getWalletAlerts } from "../../api/walletAlertApi";
@@ -14,11 +15,14 @@ import { demoWalletAlerts } from "../../demo/walletAlertDemo";
 import { demoCategories } from "../../demo/categoryDemo";
 
 import type { MonthlySummaryResponse } from "../../types/monthlySummary";
+import type { Category } from "../../types/category";
 import type { WalletAlertSummary } from "../../types/walletAlert";
 import {
   WALLET_OPTIONS,
   type WalletType,
 } from "../../types/transaction";
+
+import { getCategoryIcon } from "../../utils/categoryIcon";
 
 import "./MonthlySummaryPage.css";
 
@@ -82,6 +86,7 @@ export default function MonthlySummaryPage() {
   const [data, setData] = useState<MonthlySummaryResponse | null>(null);
   const [walletAlerts, setWalletAlerts] =
     useState<WalletAlertSummary | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -103,17 +108,22 @@ export default function MonthlySummaryPage() {
       };
       setData(summary);
       setWalletAlerts(demoWalletAlerts);
+      setCategories(demoCategories);
       setLoading(false);
       return;
     }
 
     try {
-      const [summary, alerts] = await Promise.all([
-        getMonthlySummary(targetYear, targetMonth),
-        getWalletAlerts(targetYear, targetMonth),
-      ]);
+      const [summary, alerts, expenseCats, incomeCats] =
+        await Promise.all([
+          getMonthlySummary(targetYear, targetMonth),
+          getWalletAlerts(targetYear, targetMonth),
+          getCategories("EXPENSE"),
+          getCategories("INCOME"),
+        ]);
       setData(summary);
       setWalletAlerts(alerts);
+      setCategories([...expenseCats, ...incomeCats]);
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
@@ -441,12 +451,15 @@ export default function MonthlySummaryPage() {
               <>
                 <span className="ms-highlight-name">
                   <span className="ms-highlight-icon">
-                    {data.topExpenseCategory.categoryIcon ??
-                      demoCategories.find(
-                        (c) =>
-                          c.id === data.topExpenseCategory?.categoryId
-                      )?.icon ??
-                      "💸"}
+                    {getCategoryIcon(
+                      {
+                        type: "EXPENSE",
+                        categoryId: data.topExpenseCategory.categoryId,
+                        categoryIcon:
+                          data.topExpenseCategory.categoryIcon,
+                      },
+                      categories
+                    )}
                   </span>
                   {data.topExpenseCategory.categoryName}
                 </span>
@@ -503,15 +516,16 @@ export default function MonthlySummaryPage() {
               <>
                 <span className="ms-highlight-name">
                   <span className="ms-highlight-icon">
-                    {data.largestExpense.categoryIcon ??
-                      (data.largestExpense.categoryId != null
-                        ? demoCategories.find(
-                            (c) =>
-                              c.id ===
-                              data.largestExpense?.categoryId
-                          )?.icon
-                        : null) ??
-                      "💸"}
+                    {getCategoryIcon(
+                      {
+                        type: "EXPENSE",
+                        categoryId:
+                          data.largestExpense.categoryId ?? 0,
+                        categoryIcon:
+                          data.largestExpense.categoryIcon,
+                      },
+                      categories
+                    )}
                   </span>
                   {data.largestExpense.note ||
                     data.largestExpense.categoryName ||

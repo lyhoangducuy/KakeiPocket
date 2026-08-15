@@ -25,7 +25,33 @@ import java.util.Map;
 @Slf4j
 public class GeminiService {
 
+    private static final int MAX_OUTPUT_TOKENS = 4096;
+
     private final GeminiProperties properties;
+
+    public GeminiService(
+            GeminiProperties properties,
+            @Qualifier("geminiRestClient") RestClient restClient,
+            ObjectMapper objectMapper
+    ) {
+        this.properties = properties;
+        this.restClient = restClient;
+        this.objectMapper = objectMapper;
+        String key = properties.getApiKey();
+        if (key == null || key.isBlank()) {
+            log.warn("Gemini API key is not configured");
+        } else {
+            String masked = key.length() <= 8
+                    ? "***"
+                    : key.substring(0, 4)
+                            + "..."
+                            + key.substring(key.length() - 4);
+            log.info(
+                    "Gemini configured model={} apiKey={}",
+                    properties.getModel(), masked
+            );
+        }
+    }
 
     @Qualifier("geminiRestClient")
     private final RestClient restClient;
@@ -62,7 +88,8 @@ public class GeminiService {
                         .build()))
                 .generationConfig(GeminiRequest.GenerationConfig.builder()
                         .temperature(0.4)
-                        .maxOutputTokens(1500)
+                        .maxOutputTokens(MAX_OUTPUT_TOKENS)
+                        .responseMimeType("application/json")
                         .build())
                 .build();
 

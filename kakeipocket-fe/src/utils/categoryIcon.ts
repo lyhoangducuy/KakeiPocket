@@ -12,11 +12,17 @@ const FALLBACK_ICON: Record<TransactionType, string> = {
 export function getCategoryIcon(
   tx:
     | ExpenseTransaction
-    | { type: TransactionType; categoryId: number; categoryIcon?: string | null },
+    | {
+        type: TransactionType;
+        categoryId: number | null;
+        categoryIcon?: string | null;
+      },
   categories: Category[]
 ): string {
   if (tx.categoryIcon) return tx.categoryIcon;
-  const cat = categories.find((c) => c.id === tx.categoryId);
-  if (cat?.icon) return cat.icon;
+  if (tx.categoryId != null) {
+    const cat = categories.find((c) => c.id === tx.categoryId);
+    if (cat?.icon) return cat.icon;
+  }
   return FALLBACK_ICON[tx.type] ?? "💼";
 }
