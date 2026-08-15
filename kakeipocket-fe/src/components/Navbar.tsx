@@ -54,6 +54,11 @@ export default function Navbar() {
   const initials =
     (user?.email ?? "U").trim().charAt(0).toUpperCase() || "U";
 
+  const PUBLIC_PATHS = new Set(["/", "/login", "/register"]);
+  const isPublicPage = PUBLIC_PATHS.has(location.pathname);
+
+  const showAuthLikeNav = isAuthenticated || !isPublicPage;
+
   return (
     <nav className="navbar">
       <Link to={logoTo} className="logo">
@@ -74,7 +79,7 @@ export default function Navbar() {
       <div
         className={`nav-links ${menuOpen ? "nav-links-open" : ""}`}
       >
-        {!isAuthenticated && (
+        {!showAuthLikeNav && (
           <>
             <div className="nav-links-group">
               <Link to="/">Trang chủ</Link>
@@ -98,94 +103,111 @@ export default function Navbar() {
           </>
         )}
 
-        {isAuthenticated && (
+        {showAuthLikeNav && (
           <>
             <div className="nav-links-group">
               <Link to="/dashboard">Dashboard</Link>
               <Link to="/transactions">Giao dịch</Link>
               <Link to="/monthly-plan">Kế hoạch</Link>
+              <Link to="/categories">Danh mục</Link>
               <Link to="/statistics">Thống kê</Link>
               <Link to="/wallet-configuration">Ví</Link>
             </div>
 
             <div className="nav-actions">
-              <button
-                type="button"
-                className="nav-icon-btn"
-                aria-label="Thông báo"
-                title="Thông báo (xem trong Dashboard)"
-              >
-                <span className="nav-icon">🔔</span>
-              </button>
+              {isAuthenticated && (
+                <>
+                  <button
+                    type="button"
+                    className="nav-icon-btn"
+                    aria-label="Thông báo"
+                    title="Thông báo (xem trong Dashboard)"
+                  >
+                    <span className="nav-icon">🔔</span>
+                  </button>
 
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  className="nav-admin-link"
-                >
-                  Admin
-                </Link>
-              )}
-
-              <div
-                className="nav-user-menu"
-                ref={userMenuRef}
-              >
-                <button
-                  type="button"
-                  className="nav-avatar"
-                  onClick={() =>
-                    setUserMenuOpen((o) => !o)
-                  }
-                  aria-label="Tài khoản"
-                  aria-expanded={userMenuOpen}
-                >
-                  <span>{initials}</span>
-                </button>
-
-                {userMenuOpen && (
-                  <div className="nav-user-dropdown">
-                    <div className="nav-user-dropdown-info">
-                      <span className="nav-user-dropdown-name">
-                        {user?.email}
-                      </span>
-                      <span className="nav-user-dropdown-email">
-                        Tài khoản đã đăng nhập
-                      </span>
-                      {user?.roles && (
-                        <span className="nav-user-dropdown-role">
-                          {user.roles}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="nav-user-dropdown-divider" />
-
+                  {isAdmin && (
                     <Link
-                      to="/profile"
-                      className="nav-user-dropdown-item"
+                      to="/admin"
+                      className="nav-admin-link"
                     >
-                      Hồ sơ
+                      Admin
                     </Link>
-                    <Link
-                      to="/categories"
-                      className="nav-user-dropdown-item"
-                    >
-                      Danh mục
-                    </Link>
+                  )}
 
-                    <div className="nav-user-dropdown-divider" />
-
+                  <div
+                    className="nav-user-menu"
+                    ref={userMenuRef}
+                  >
                     <button
                       type="button"
-                      className="nav-user-dropdown-item nav-user-dropdown-logout"
-                      onClick={handleLogout}
+                      className="nav-avatar"
+                      onClick={() =>
+                        setUserMenuOpen((o) => !o)
+                      }
+                      aria-label="Tài khoản"
+                      aria-expanded={userMenuOpen}
                     >
-                      Đăng xuất
+                      <span>{initials}</span>
                     </button>
+
+                    {userMenuOpen && (
+                      <div className="nav-user-dropdown">
+                        <div className="nav-user-dropdown-info">
+                          <span className="nav-user-dropdown-name">
+                            {user?.email}
+                          </span>
+                          <span className="nav-user-dropdown-email">
+                            Tài khoản đã đăng nhập
+                          </span>
+                          {user?.roles && (
+                            <span className="nav-user-dropdown-role">
+                              {user.roles}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="nav-user-dropdown-divider" />
+
+                        <Link
+                          to="/profile"
+                          className="nav-user-dropdown-item"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          Hồ sơ
+                        </Link>
+
+                        <div className="nav-user-dropdown-divider" />
+
+                        <button
+                          type="button"
+                          className="nav-user-dropdown-item nav-user-dropdown-logout"
+                          onClick={handleLogout}
+                        >
+                          Đăng xuất
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
+                </>
+              )}
+
+              {!isAuthenticated && (
+                <div className="nav-actions">
+                  <Link
+                    to="/login"
+                    className="nav-btn-secondary"
+                  >
+                    Đăng nhập
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="nav-btn-primary"
+                  >
+                    Đăng ký
+                  </Link>
+                </div>
+              )}
             </div>
           </>
         )}
