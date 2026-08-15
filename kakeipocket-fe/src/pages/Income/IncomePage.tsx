@@ -382,9 +382,20 @@ export default function IncomePage() {
               }
               type="INCOME"
               disabled={isGuest}
-              onCategoryCreated={(cat) =>
-                setCategories((prev) => [...prev, cat])
-              }
+              onCategoryCreated={(cat) => {
+                setCategories((prev) => {
+                  if (
+                    prev.some((p) => p.id === cat.id)
+                  ) {
+                    return prev;
+                  }
+                  return [...prev, cat];
+                });
+                setFormData((prev) => ({
+                  ...prev,
+                  categoryId: String(cat.id),
+                }));
+              }}
             />
           </div>
 

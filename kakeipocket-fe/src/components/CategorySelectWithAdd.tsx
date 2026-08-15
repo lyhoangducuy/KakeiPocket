@@ -39,6 +39,14 @@ export default function CategorySelectWithAdd({
 
   const handleCreated = (category: Category) => {
     setModalOpen(false);
+    if (category.type !== type) {
+      console.warn(
+        `[CategorySelectWithAdd] created category type (${category.type}) mismatch with parent type (${type}). ` +
+          `The category was created but won't appear in this dropdown.`
+      );
+      onCategoryCreated?.(category);
+      return;
+    }
     onChange(String(category.id));
     onCategoryCreated?.(category);
   };

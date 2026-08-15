@@ -130,7 +130,15 @@ export default function CategoryFormModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="cat-modal-body">
+        <div
+          className="cat-modal-body"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !busy) {
+              e.preventDefault();
+              void handleSubmit(e as unknown as React.FormEvent);
+            }
+          }}
+        >
           <div className="cat-modal-grid">
             <div className="cat-modal-field">
               <label className="cat-modal-label">
@@ -240,9 +248,15 @@ export default function CategoryFormModal({
               Hủy
             </button>
             <button
-              type="submit"
+              type="button"
               className="cat-modal-btn-primary"
               disabled={busy}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleSubmit(
+                  e as unknown as React.FormEvent
+                );
+              }}
             >
               {busy
                 ? "Đang xử lý..."
@@ -251,7 +265,7 @@ export default function CategoryFormModal({
                   : "Cập nhật"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

@@ -32,6 +32,7 @@ interface QuickAddCategoryModalProps {
   defaultType: CategoryType;
   onCancel: () => void;
   onCreated: (category: Category) => void;
+  lockType?: boolean;
 }
 
 export default function QuickAddCategoryModal({
@@ -39,6 +40,7 @@ export default function QuickAddCategoryModal({
   defaultType,
   onCancel,
   onCreated,
+  lockType = true,
 }: QuickAddCategoryModalProps) {
   const [name, setName] = useState("");
   const [type, setType] = useState<CategoryType>(defaultType);
@@ -98,8 +100,15 @@ export default function QuickAddCategoryModal({
       onCreated(created);
     } catch (err: any) {
       const sc = err?.response?.status;
+      const code = err?.response?.data?.code;
       if (sc === 401) {
         setError("Phiên đăng nhập đã hết hạn.");
+      } else if (code === 1018) {
+        setError(
+          `Danh mục "${trimmed}" đã tồn tại trong ${
+            type === "EXPENSE" ? "chi tiêu" : "thu nhập"
+          }.`
+        );
       } else {
         setError(
           err?.response?.data?.message ||
@@ -109,6 +118,11 @@ export default function QuickAddCategoryModal({
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (submitting) return;
+    onCancel();
   };
 
   return (
@@ -127,7 +141,7 @@ export default function QuickAddCategoryModal({
           <button
             type="button"
             className="qacm-close"
-            onClick={onCancel}
+            onClick={handleCancel}
             disabled={submitting}
             aria-label="Đóng"
           >
@@ -135,7 +149,15 @@ export default function QuickAddCategoryModal({
           </button>
         </div>
 
-        <form className="qacm-body" onSubmit={handleSubmit}>
+        <div
+          className="qacm-body"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !submitting) {
+              e.preventDefault();
+              void handleSubmit(e as unknown as React.FormEvent);
+            }
+          }}
+        >
           <div className="qacm-field">
             <label className="qacm-label">
               Tên danh mục <span className="qacm-required">*</span>
@@ -160,13 +182,15 @@ export default function QuickAddCategoryModal({
               onChange={(e) =>
                 setType(e.target.value as CategoryType)
               }
-              disabled={submitting}
+              disabled={submitting || lockType}
             >
               <option value="EXPENSE">Chi tiêu</option>
               <option value="INCOME">Thu nhập</option>
             </select>
             <span className="qacm-hint">
-              Loại danh mục phải khớp với loại giao dịch.
+              {lockType
+                ? "Loại danh mục khớp với loại giao dịch."
+                : "Loại danh mục phải khớp với loại giao dịch."}
             </span>
           </div>
 
@@ -236,20 +260,26 @@ export default function QuickAddCategoryModal({
             <button
               type="button"
               className="qacm-btn-secondary"
-              onClick={onCancel}
+              onClick={handleCancel}
               disabled={submitting}
             >
               Hủy
             </button>
             <button
-              type="submit"
+              type="button"
               className="qacm-btn-primary"
               disabled={submitting}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleSubmit(
+                  e as unknown as React.FormEvent
+                );
+              }}
             >
               {submitting ? "Đang thêm..." : "Thêm danh mục"}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

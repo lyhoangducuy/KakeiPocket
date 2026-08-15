@@ -149,12 +149,13 @@ export default function ExpensePage() {
       const cats = await getCategories("EXPENSE");
       setCategories(cats);
 
-      if (cats.length > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          categoryId: String(cats[0].id),
-        }));
-      }
+      setFormData((prev) => {
+        if (prev.categoryId) return prev;
+        if (cats.length > 0) {
+          return { ...prev, categoryId: String(cats[0].id) };
+        }
+        return prev;
+      });
 
       await loadTransactions();
     } catch (err: any) {
@@ -410,9 +411,20 @@ export default function ExpensePage() {
                 }
                 type="EXPENSE"
                 disabled={isGuest}
-                onCategoryCreated={(cat) =>
-                  setCategories((prev) => [...prev, cat])
-                }
+                onCategoryCreated={(cat) => {
+                  setCategories((prev) => {
+                    if (
+                      prev.some((p) => p.id === cat.id)
+                    ) {
+                      return prev;
+                    }
+                    return [...prev, cat];
+                  });
+                  setFormData((prev) => ({
+                    ...prev,
+                    categoryId: String(cat.id),
+                  }));
+                }}
               />
             </div>
 

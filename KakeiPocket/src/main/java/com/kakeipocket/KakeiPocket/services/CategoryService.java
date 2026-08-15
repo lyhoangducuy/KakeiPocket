@@ -1,10 +1,12 @@
 package com.kakeipocket.KakeiPocket.services;
 
+import com.kakeipocket.KakeiPocket.config.AppException;
 import com.kakeipocket.KakeiPocket.dto.Category.CategoryResponse;
 import com.kakeipocket.KakeiPocket.dto.Category.CreateCategoryRequest;
 import com.kakeipocket.KakeiPocket.dto.Category.UpdateCategoryRequest;
 import com.kakeipocket.KakeiPocket.entity.Category;
 import com.kakeipocket.KakeiPocket.entity.User;
+import com.kakeipocket.KakeiPocket.enums.ErrorCode;
 import com.kakeipocket.KakeiPocket.enums.TransactionType;
 import com.kakeipocket.KakeiPocket.repository.AuthenticationRepository;
 import com.kakeipocket.KakeiPocket.repository.CategoryRepository;
@@ -89,7 +91,9 @@ public class CategoryService {
                 request.getName().trim(),
                 request.getType()
         )) {
-            throw new RuntimeException("Danh mục đã tồn tại");
+            throw new AppException(
+                    ErrorCode.CATEGORY_ALREADY_EXISTS
+            );
         }
 
         Category category = Category.builder()
