@@ -38,6 +38,7 @@ import AdminExportPage from "./pages/admin/AdminExportPage";
 import LandingPage from "./pages/public/LandingPage";
 
 import NotFoundPage, { ForbiddenPage } from "./pages/NotFoundPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 
 function HomeRoute() {
   const { isAuthenticated, loading } = useAuth();
@@ -109,79 +110,82 @@ function App() {
     <AuthProvider>
       <SystemConfigProvider>
         <Routes>
-        {/* PUBLIC */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+          {/* PUBLIC */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/forgot-password"
+            element={<ForgotPasswordPage />}
+          />
+          {/* LANDING / HOME */}
+          <Route path="/" element={<HomeRoute />} />
 
-        {/* LANDING / HOME */}
-        <Route path="/" element={<HomeRoute />} />
+          {/* AUTH ONLY */}
+          <Route element={<AuthOnlyRoute />}>
+            <Route element={<MainLayout />}>
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/user" element={<UserHomePage />} />
+            </Route>
+          </Route>
 
-        {/* AUTH ONLY */}
-        <Route element={<AuthOnlyRoute />}>
+          {/* DEMO + AUTH */}
           <Route element={<MainLayout />}>
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/user" element={<UserHomePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/monthly-plan" element={<MonthlyPlanPage />} />
+            <Route
+              path="/wallet-configuration"
+              element={<WalletConfigurationPage />}
+            />
+            <Route path="/categories" element={<CategoryPage />} />
+            <Route path="/expenses" element={<ExpensePage />} />
+            <Route path="/incomes" element={<IncomePage />} />
+            <Route
+              path="/transactions"
+              element={<TransactionHistoryPage />}
+            />
+            <Route path="/statistics" element={<StatisticsPage />} />
+            <Route path="/wallet-alerts" element={<WalletAlertsPage />} />
+            <Route
+              path="/monthly-summary"
+              element={<MonthlySummaryPage />}
+            />
+            <Route path="/ai-financial" element={<AiFinancialPage />} />
           </Route>
-        </Route>
 
-        {/* DEMO + AUTH */}
-        <Route element={<MainLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/monthly-plan" element={<MonthlyPlanPage />} />
-          <Route
-            path="/wallet-configuration"
-            element={<WalletConfigurationPage />}
-          />
-          <Route path="/categories" element={<CategoryPage />} />
-          <Route path="/expenses" element={<ExpensePage />} />
-          <Route path="/incomes" element={<IncomePage />} />
-          <Route
-            path="/transactions"
-            element={<TransactionHistoryPage />}
-          />
-          <Route path="/statistics" element={<StatisticsPage />} />
-          <Route path="/wallet-alerts" element={<WalletAlertsPage />} />
-          <Route
-            path="/monthly-summary"
-            element={<MonthlySummaryPage />}
-          />
-          <Route path="/ai-financial" element={<AiFinancialPage />} />
-        </Route>
-
-        {/* ADMIN */}
-        <Route element={<AdminRoute />}>
-          <Route element={<AdminLayout />}>
-            <Route
-              path="/admin"
-              element={<Navigate to="/admin/dashboard" replace />}
-            />
-            <Route
-              path="/admin/dashboard"
-              element={<AdminDashboardPage />}
-            />
-            <Route
-              path="/admin/users"
-              element={<AdminUsersPage />}
-            />
-            <Route
-              path="/admin/categories"
-              element={<AdminCategoriesPage />}
-            />
-            <Route
-              path="/admin/system-config"
-              element={<AdminSystemConfigPage />}
-            />
-            <Route
-              path="/admin/export"
-              element={<AdminExportPage />}
-            />
+          {/* ADMIN */}
+          <Route element={<AdminRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route
+                path="/admin"
+                element={<Navigate to="/admin/dashboard" replace />}
+              />
+              <Route
+                path="/admin/dashboard"
+                element={<AdminDashboardPage />}
+              />
+              <Route
+                path="/admin/users"
+                element={<AdminUsersPage />}
+              />
+              <Route
+                path="/admin/categories"
+                element={<AdminCategoriesPage />}
+              />
+              <Route
+                path="/admin/system-config"
+                element={<AdminSystemConfigPage />}
+              />
+              <Route
+                path="/admin/export"
+                element={<AdminExportPage />}
+              />
+            </Route>
           </Route>
-        </Route>
 
-        {/* ERRORS */}
-        <Route path="/403" element={<ForbiddenPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          {/* ERRORS */}
+          <Route path="/403" element={<ForbiddenPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </SystemConfigProvider>
     </AuthProvider>
   );

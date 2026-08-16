@@ -1,8 +1,11 @@
 package com.kakeipocket.KakeiPocket.controller;
 
 import com.kakeipocket.KakeiPocket.config.ApiResponse;
+import com.kakeipocket.KakeiPocket.dto.Authentication.Request.ForgotPasswordRequestDTO;
 import com.kakeipocket.KakeiPocket.dto.Authentication.Request.LoginRequestDTO;
 import com.kakeipocket.KakeiPocket.dto.Authentication.Request.RegisterRequestDTO;
+import com.kakeipocket.KakeiPocket.dto.Authentication.Request.ResetPasswordRequestDTO;
+import com.kakeipocket.KakeiPocket.dto.Authentication.Request.VerifyOtpRequestDTO;
 import com.kakeipocket.KakeiPocket.dto.Authentication.Response.LoginResponseDTO;
 import com.kakeipocket.KakeiPocket.dto.Authentication.Response.RegisterResponseDTO;
 import com.kakeipocket.KakeiPocket.services.AuthenticationService;
@@ -79,32 +82,45 @@ public class AuthenticationController {
         // FORGOT PASSWORD
         // =========================
 
-        @PostMapping("/forgot-password")
-        public ApiResponse<String> forgotPassword(
-                        @RequestParam String email) {
-
-                String token = authenticationService
-                                .forgotPassword(email);
-
-                return ApiResponse.<String>builder()
-                                .code(1000)
-                                .message("Reset token generated")
-                                .result(token)
-                                .build();
-        }
-
         // =========================
         // RESET PASSWORD
         // =========================
 
+        @PostMapping("/forgot-password")
+        public ApiResponse<Void> forgotPassword(
+                        @RequestBody @Valid ForgotPasswordRequestDTO request) {
+
+                authenticationService.forgotPassword(
+                                request.getEmail());
+
+                return ApiResponse.<Void>builder()
+                                .code(1000)
+                                .message(
+                                                "OTP has been sent if the email exists")
+                                .build();
+        }
+        @PostMapping("/verify-otp")
+        public ApiResponse<Void> verifyOtp(
+                        @RequestBody @Valid VerifyOtpRequestDTO request) {
+
+                authenticationService.verifyOtp(
+                                request.getEmail(),
+                                request.getOtp());
+
+                return ApiResponse.<Void>builder()
+                                .code(1000)
+                                .message("OTP verified successfully")
+                                .build();
+        }
+
         @PostMapping("/reset-password")
         public ApiResponse<Void> resetPassword(
-                        @RequestParam String token,
-                        @RequestParam String newPassword) {
+                        @RequestBody @Valid ResetPasswordRequestDTO request) {
 
                 authenticationService.resetPassword(
-                                token,
-                                newPassword);
+                                request.getEmail(),
+                                request.getNewPassword(),
+                                request.getConfirmPassword());
 
                 return ApiResponse.<Void>builder()
                                 .code(1000)

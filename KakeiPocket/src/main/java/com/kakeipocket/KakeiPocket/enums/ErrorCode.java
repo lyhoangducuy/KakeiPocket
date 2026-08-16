@@ -113,7 +113,26 @@ public enum ErrorCode {
     AI_SERVICE_UNAVAILABLE(
             1014,
             "AI service is temporarily unavailable"
-    );
+    ),
+    INVALID_OTP(
+    1013,
+    "Invalid OTP"
+),
+
+OTP_EXPIRED(
+    1014,
+    "OTP has expired"
+),
+
+OTP_TOO_MANY_ATTEMPTS(
+    1015,
+    "Too many OTP attempts"
+),
+
+OTP_NOT_VERIFIED(
+    1016,
+    "OTP has not been verified"
+);
 
     private final int code;
     private final String message;

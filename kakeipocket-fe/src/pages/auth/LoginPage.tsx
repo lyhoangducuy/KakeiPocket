@@ -63,7 +63,7 @@ export default function LoginPage() {
     } catch (error: any) {
       setError(
         error?.response?.data?.message ||
-          "Email hoặc mật khẩu không đúng"
+        "Email hoặc mật khẩu không đúng"
       );
     } finally {
       setLoading(false);
@@ -108,7 +108,11 @@ export default function LoginPage() {
             }
             required
           />
-
+          <div className="forgot-password-link">
+            <Link to="/forgot-password">
+              Quên mật khẩu?
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={loading}
